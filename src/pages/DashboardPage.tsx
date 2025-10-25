@@ -92,7 +92,11 @@ export const DashboardPage: React.FC = () => {
       }, 0) || 0
 
       // Create recent activity
-      const recentActivity = []
+      const recentActivity: Array<{
+        type: 'project' | 'task' | 'time' | 'doc'
+        message: string
+        timestamp: string
+      }> = []
       
       // Add recent projects
       const recentProjects = projects?.slice(0, 3) || []

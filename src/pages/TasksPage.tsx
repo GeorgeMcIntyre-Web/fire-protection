@@ -57,8 +57,8 @@ export const TasksPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    status: 'pending' as const,
-    priority: 'medium' as const,
+    status: 'pending' as 'pending' | 'in_progress' | 'completed',
+    priority: 'medium' as 'low' | 'medium' | 'high',
     project_id: '',
     assigned_to: '',
     due_date: ''

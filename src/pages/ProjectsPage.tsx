@@ -6,7 +6,6 @@ import {
   PencilIcon, 
   TrashIcon,
   CalendarIcon,
-  UserIcon,
   BuildingOfficeIcon
 } from '@heroicons/react/24/outline'
 
@@ -44,7 +43,7 @@ export const ProjectsPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    status: 'pending' as const,
+    status: 'pending' as 'pending' | 'in_progress' | 'completed' | 'cancelled',
     client_id: '',
     due_date: ''
   })
