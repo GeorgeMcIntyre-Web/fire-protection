@@ -7,6 +7,7 @@ import {
   ClockIcon,
   CheckCircleIcon
 } from '@heroicons/react/24/outline'
+import { Link } from 'react-router-dom'
 
 interface DashboardStats {
   totalProjects: number
@@ -16,6 +17,11 @@ interface DashboardStats {
   completedTasks: number
   pendingTasks: number
   totalTimeLogged: number
+  recentActivity: Array<{
+    type: 'project' | 'task' | 'time' | 'doc'
+    message: string
+    timestamp: string
+  }>
 }
 
 export const DashboardPage: React.FC = () => {
@@ -28,6 +34,7 @@ export const DashboardPage: React.FC = () => {
     completedTasks: 0,
     pendingTasks: 0,
     totalTimeLogged: 0,
+    recentActivity: []
   })
   const [loading, setLoading] = useState(true)
 
@@ -40,17 +47,26 @@ export const DashboardPage: React.FC = () => {
       // Fetch project stats
       const { data: projects } = await supabase
         .from('projects')
-        .select('status')
+        .select('status, created_at')
 
       // Fetch task stats
       const { data: tasks } = await supabase
         .from('tasks')
-        .select('status')
+        .select('status, created_at')
 
       // Fetch time logs
       const { data: timeLogs } = await supabase
         .from('time_logs')
         .select('start_time, end_time')
+        .eq('user_id', user?.id)
+
+      // Fetch recent work docs
+      const { data: workDocs } = await supabase
+        .from('work_documentation')
+        .select('created_at')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(5)
 
       const projectStats = projects?.reduce((acc, project) => {
         acc.total++
@@ -75,6 +91,42 @@ export const DashboardPage: React.FC = () => {
         return acc
       }, 0) || 0
 
+      // Create recent activity
+      const recentActivity = []
+      
+      // Add recent projects
+      const recentProjects = projects?.slice(0, 3) || []
+      recentProjects.forEach(project => {
+        recentActivity.push({
+          type: 'project' as const,
+          message: `Project "${project.status}" status updated`,
+          timestamp: project.created_at
+        })
+      })
+
+      // Add recent tasks
+      const recentTasks = tasks?.slice(0, 3) || []
+      recentTasks.forEach(task => {
+        recentActivity.push({
+          type: 'task' as const,
+          message: `Task "${task.status}" status updated`,
+          timestamp: task.created_at
+        })
+      })
+
+      // Add recent work docs
+      workDocs?.forEach(doc => {
+        recentActivity.push({
+          type: 'doc' as const,
+          message: 'Work documentation added',
+          timestamp: doc.created_at
+        })
+      })
+
+      // Sort by timestamp and take latest 5
+      recentActivity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+      recentActivity.splice(5)
+
       setStats({
         totalProjects: projectStats.total,
         activeProjects: projectStats.active,
@@ -83,6 +135,7 @@ export const DashboardPage: React.FC = () => {
         completedTasks: taskStats.completed,
         pendingTasks: taskStats.pending,
         totalTimeLogged: Math.round(totalTime / (1000 * 60 * 60)), // Convert to hours
+        recentActivity
       })
     } catch (error) {
       console.error('Error fetching dashboard stats:', error)
@@ -97,10 +150,22 @@ export const DashboardPage: React.FC = () => {
     return `${hours} hours`
   }
 
+  const formatActivityTime = (timestamp: string) => {
+    const now = new Date()
+    const time = new Date(timestamp)
+    const diffMs = now.getTime() - time.getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffDays = Math.floor(diffHours / 24)
+
+    if (diffDays > 0) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    if (diffHours > 0) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    return 'Just now'
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
       </div>
     )
   }
@@ -232,21 +297,74 @@ export const DashboardPage: React.FC = () => {
             Quick Actions
           </h3>
           <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+            <Link
+              to="/projects"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+            >
               <FolderIcon className="h-4 w-4 mr-2" />
               New Project
-            </button>
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700">
+            </Link>
+            <Link
+              to="/tasks"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+            >
               <ClipboardDocumentListIcon className="h-4 w-4 mr-2" />
               New Task
-            </button>
-            <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700">
+            </Link>
+            <Link
+              to="/time-tracking"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700"
+            >
               <ClockIcon className="h-4 w-4 mr-2" />
               Clock In
-            </button>
+            </Link>
           </div>
         </div>
       </div>
+
+      {/* Recent Activity */}
+      {stats.recentActivity.length > 0 && (
+        <div className="bg-white shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <h3 className="text-lg leading-6 font-medium text-gray-900">
+              Recent Activity
+            </h3>
+            <div className="mt-5">
+              <div className="flow-root">
+                <ul className="-mb-8">
+                  {stats.recentActivity.map((activity, index) => (
+                    <li key={index}>
+                      <div className="relative pb-8">
+                        {index !== stats.recentActivity.length - 1 && (
+                          <span className="absolute top-4 left-4 -ml-px h-full w-0.5 bg-gray-200" />
+                        )}
+                        <div className="relative flex space-x-3">
+                          <div>
+                            <span className="h-8 w-8 rounded-full bg-blue-500 flex items-center justify-center ring-8 ring-white">
+                              {activity.type === 'project' && <FolderIcon className="h-4 w-4 text-white" />}
+                              {activity.type === 'task' && <ClipboardDocumentListIcon className="h-4 w-4 text-white" />}
+                              {activity.type === 'time' && <ClockIcon className="h-4 w-4 text-white" />}
+                              {activity.type === 'doc' && <CheckCircleIcon className="h-4 w-4 text-white" />}
+                            </span>
+                          </div>
+                          <div className="min-w-0 flex-1 pt-1.5 flex justify-between space-x-4">
+                            <div>
+                              <p className="text-sm text-gray-500">{activity.message}</p>
+                            </div>
+                            <div className="text-right text-sm whitespace-nowrap text-gray-500">
+                              {formatActivityTime(activity.timestamp)}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
