@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import { DEMO_MODE } from '../lib/supabase'
 
 export const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -23,7 +24,15 @@ export const RegisterPage: React.FC = () => {
     if (error) {
       setError(error.message)
     } else {
-      setMessage('Check your email for the confirmation link!')
+      // In demo mode, automatically redirect to dashboard
+      if (DEMO_MODE) {
+        setMessage('Demo account created! Redirecting to dashboard...')
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 1500)
+      } else {
+        setMessage('Check your email for the confirmation link!')
+      }
     }
     
     setLoading(false)

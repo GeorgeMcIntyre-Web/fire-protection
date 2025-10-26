@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { DocumentLibrary } from '../components/DocumentLibrary'
 import { 
   PlusIcon, 
   PencilIcon, 
@@ -10,7 +11,8 @@ import {
   FolderIcon,
   ClipboardDocumentListIcon,
   CalendarIcon,
-  UserIcon
+  UserIcon,
+  BuildingLibraryIcon
 } from '@heroicons/react/24/outline'
 
 interface WorkDoc {
@@ -47,6 +49,7 @@ interface Task {
 
 export const WorkDocsPage: React.FC = () => {
   const { user } = useAuth()
+  const [activeTab, setActiveTab] = useState<'work' | 'company'>('work')
   const [workDocs, setWorkDocs] = useState<WorkDoc[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
@@ -247,21 +250,58 @@ export const WorkDocsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Work Documentation</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Upload photos and notes for completed work
+          <h1 className="text-2xl font-bold text-white">Work Documentation</h1>
+          <p className="mt-1 text-sm text-gray-400">
+            Document your work and access company documents
           </p>
         </div>
+        {activeTab === 'work' && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="btn-primary inline-flex items-center"
+          >
+            <PlusIcon className="h-4 w-4 mr-2" />
+            Add Documentation
+          </button>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className="bg-gray-800 rounded-lg p-1 inline-flex border border-gray-700">
         <button
-          onClick={() => setShowModal(true)}
-          className="btn-primary inline-flex items-center"
+          onClick={() => setActiveTab('work')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'work'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-400 hover:text-white hover:bg-gray-700'
+          }`}
         >
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Add Documentation
+          <div className="flex items-center">
+            <PhotoIcon className="h-4 w-4 mr-2" />
+            Work Documentation
+          </div>
+        </button>
+        <button
+          onClick={() => setActiveTab('company')}
+          className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+            activeTab === 'company'
+              ? 'bg-blue-600 text-white'
+              : 'text-gray-400 hover:text-white hover:bg-gray-700'
+          }`}
+        >
+          <div className="flex items-center">
+            <BuildingLibraryIcon className="h-4 w-4 mr-2" />
+            Company Documents
+          </div>
         </button>
       </div>
 
-      {/* Work Documentation List */}
+      {/* Render appropriate content based on active tab */}
+      {activeTab === 'company' ? (
+        <DocumentLibrary />
+      ) : (
+        <>
+          {/* Work Documentation List */}
       <div className="bg-white shadow rounded-lg">
         {workDocs.length === 0 ? (
           <div className="text-center py-12">
@@ -469,6 +509,8 @@ export const WorkDocsPage: React.FC = () => {
           </div>
         </div>
       )}
+    </>
+    )}
     </div>
   )
 }

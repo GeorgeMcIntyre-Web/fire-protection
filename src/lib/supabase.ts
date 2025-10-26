@@ -3,11 +3,21 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables')
+// Check if we're in demo mode
+const isDemoMode = !supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-project-id')
+
+if (isDemoMode) {
+  console.warn('Running in demo mode - Supabase credentials not configured')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create Supabase client
+export const supabase = createClient(
+  isDemoMode ? 'https://demo.supabase.co' : supabaseUrl,
+  isDemoMode ? 'demo-key' : supabaseAnonKey
+)
+
+// Export demo mode flag for components to use
+export const DEMO_MODE = isDemoMode
 
 // Database types
 export interface Database {

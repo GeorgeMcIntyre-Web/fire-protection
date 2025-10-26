@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import type { User, Session } from '@supabase/supabase-js'
-import { supabase } from '../lib/supabase'
+import { supabase, DEMO_MODE } from '../lib/supabase'
 
 interface AuthContextType {
   user: User | null
@@ -64,6 +64,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [])
 
   const signUp = async (email: string, password: string, fullName: string) => {
+    if (DEMO_MODE) {
+      // Demo mode - simulate successful signup
+      const demoUser = {
+        id: 'demo-user-id',
+        email: email,
+        user_metadata: { full_name: fullName },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        aud: 'authenticated',
+        role: 'authenticated',
+        app_metadata: {},
+        identities: []
+      } as User
+
+      setUser(demoUser)
+      setSession({
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer',
+        user: demoUser
+      } as Session)
+
+      return { error: null }
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -88,6 +115,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const signIn = async (email: string, password: string) => {
+    if (DEMO_MODE) {
+      // Demo mode - simulate successful signin
+      const demoUser = {
+        id: 'demo-user-id',
+        email: email,
+        user_metadata: { full_name: 'Demo User' },
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        aud: 'authenticated',
+        role: 'authenticated',
+        app_metadata: {},
+        identities: []
+      } as User
+
+      setUser(demoUser)
+      setSession({
+        access_token: 'demo-token',
+        refresh_token: 'demo-refresh',
+        expires_in: 3600,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+        token_type: 'bearer',
+        user: demoUser
+      } as Session)
+
+      return { error: null }
+    }
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -96,6 +150,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }
 
   const signOut = async () => {
+    if (DEMO_MODE) {
+      // Demo mode - just clear local state
+      setUser(null)
+      setSession(null)
+      return
+    }
+    
     await supabase.auth.signOut()
   }
 

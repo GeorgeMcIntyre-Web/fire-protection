@@ -3,8 +3,10 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage } from './pages/LoginPage'
 import { RegisterPage } from './pages/RegisterPage'
 import { DashboardPage } from './pages/DashboardPage'
+import { TemplatesPage } from './pages/TemplatesPage'
 import { ProjectsPage } from './pages/ProjectsPage'
 import { TasksPage } from './pages/TasksPage'
+import { ClientsPage } from './pages/ClientsPage'
 import { TimeTrackingPage } from './pages/TimeTrackingPage'
 import { WorkDocsPage } from './pages/WorkDocsPage'
 import { Layout } from './components/Layout'
@@ -24,8 +26,10 @@ function App() {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="templates" element={<TemplatesPage />} />
         <Route path="projects" element={<ProjectsPage />} />
         <Route path="tasks" element={<TasksPage />} />
+        <Route path="clients" element={<ClientsPage />} />
         <Route path="time-tracking" element={<TimeTrackingPage />} />
         <Route path="work-docs" element={<WorkDocsPage />} />
       </Route>

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { PMDashboard } from '../components/PMDashboard'
+import { BudgetTracker } from '../components/BudgetTracker'
 import { 
   FolderIcon, 
   ClipboardDocumentListIcon, 
@@ -177,16 +179,25 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-bold text-white">Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-400">
           Welcome back, {user?.email}
         </p>
+      </div>
+
+      {/* PM Dashboard - For Project Managers */}
+      <PMDashboard />
+
+      {/* Budget Tracker - For Money Management */}
+      <div>
+        <h2 className="text-xl font-bold text-white mb-4">Budget & Cost Tracking</h2>
+        <BudgetTracker />
       </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {/* Projects */}
-        <div className="bg-white overflow-hidden shadow rounded-lg">
+        <div className="bg-gray-800 overflow-hidden shadow rounded-lg border border-gray-700">
           <div className="p-5">
             <div className="flex items-center">
               <div className="flex-shrink-0">
@@ -194,10 +205,10 @@ export const DashboardPage: React.FC = () => {
               </div>
               <div className="ml-5 w-0 flex-1">
                 <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
+                  <dt className="text-sm font-medium text-gray-400 truncate">
                     Total Projects
                   </dt>
-                  <dd className="text-lg font-medium text-gray-900">
+                  <dd className="text-lg font-medium text-white">
                     {stats.totalProjects}
                   </dd>
                 </dl>
