@@ -1,256 +1,169 @@
-# Fire Protection Tracker
+# 🔥 Fire Protection Project Manager
 
-A production-ready work progress and completion tracking system for fire protection companies.
+A comprehensive project management system for fire protection contractors.
 
-## Features
+## 🎯 Features
 
-- **Authentication**: Secure login/register with Supabase Auth
-- **Project Management**: Track fire protection projects and jobs
-- **Task Management**: Assign and monitor individual tasks
-- **Time Tracking**: Clock in/out functionality with reporting
-- **Work Documentation**: Photo uploads and notes for completed work
-- **Dashboard**: Overview statistics and quick actions
-- **Responsive Design**: Works on desktop, tablet, and mobile
+### **Daily Workflow Management**
+- Track urgent and today's tasks
+- Auto-prioritization
+- Client update automation
+- Documentation status tracking
 
-## Tech Stack
+### **Budget Tracking**
+- Estimated vs actual costs per project
+- Variance percentage calculations
+- Budget alerts (green/yellow/red)
+- Cost breakdown views
 
-- **Frontend**: React + TypeScript + Vite
-- **Styling**: Tailwind CSS
-- **Authentication**: Supabase Auth
-- **Database**: Supabase PostgreSQL
-- **Hosting**: Cloudflare Pages
-- **Icons**: Heroicons
+### **Document Management**
+- 50+ company documents organized by category
+- 9-category system (Appointments, Certificates, Checklists, etc.)
+- Search and filter
+- Version control
+- Project document linking
 
-## Quick Start
+### **Project Planning**
+- Template-based project creation
+- 4-phase structured workflows
+- Task dependencies
+- Auto-cost estimation
 
-### Prerequisites
+### **Client Communication**
+- Automatic update reminders
+- One-click message copy
+- Professional message templates
+- Progress tracking
 
-- Node.js 18+ 
-- npm or yarn
-- Supabase account
+## 🚀 Quick Start
 
-### Installation
+### **1. Setup Backend** (20 min)
 
-1. **Clone and install dependencies:**
-   ```bash
-   git clone <repository-url>
-   cd fire-protection-tracker
-   npm install
-   ```
+**Get Supabase credentials:**
+1. Go to https://supabase.com/dashboard
+2. Create/select project
+3. Settings → API → Copy URL and anon key
 
-2. **Set up Supabase:**
-   - Create a new Supabase project
-   - Copy your project URL and anon key
-   - Create a `.env` file:
-     ```env
-     VITE_SUPABASE_URL=your_supabase_project_url
-     VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-     ```
+**Update .env:**
+```env
+VITE_SUPABASE_URL=https://xxxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
 
-3. **Set up database tables:**
-   Run these SQL commands in your Supabase SQL editor:
+**Add to Cloudflare:**
+- Workers & Pages → Pages → fire-protection-tracker → Settings
+- Environment Variables → Add the 2 values
+- Retry deployment
 
-   ```sql
-   -- Enable RLS
-   ALTER TABLE auth.users ENABLE ROW LEVEL SECURITY;
+**Run SQL migration:**
+- Supabase SQL Editor → Paste COPY_PASTE_READY.md → Run
 
-   -- Create profiles table
-   CREATE TABLE profiles (
-     id UUID REFERENCES auth.users(id) PRIMARY KEY,
-     email TEXT NOT NULL,
-     full_name TEXT,
-     role TEXT DEFAULT 'technician' CHECK (role IN ('admin', 'manager', 'technician')),
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
+**Upload documents:**
+```bash
+npm run upload-docs
+```
 
-   -- Create clients table
-   CREATE TABLE clients (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     name TEXT NOT NULL,
-     contact_person TEXT,
-     email TEXT,
-     phone TEXT,
-     address TEXT,
-     created_by UUID REFERENCES auth.users(id),
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
+### **2. Start Using**
 
-   -- Create projects table
-   CREATE TABLE projects (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     name TEXT NOT NULL,
-     description TEXT,
-     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed', 'cancelled')),
-     client_id UUID REFERENCES clients(id),
-     created_by UUID REFERENCES auth.users(id),
-     due_date TIMESTAMP WITH TIME ZONE,
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
+Visit: https://fire-protection-tracker.pages.dev
 
-   -- Create tasks table
-   CREATE TABLE tasks (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-     name TEXT NOT NULL,
-     description TEXT,
-     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'in_progress', 'completed')),
-     priority TEXT DEFAULT 'medium' CHECK (priority IN ('low', 'medium', 'high')),
-     assigned_to UUID REFERENCES auth.users(id),
-     created_by UUID REFERENCES auth.users(id),
-     due_date TIMESTAMP WITH TIME ZONE,
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
+Or locally:
+```bash
+npm run dev
+```
 
-   -- Create time_logs table
-   CREATE TABLE time_logs (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
-     project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-     user_id UUID REFERENCES auth.users(id),
-     start_time TIMESTAMP WITH TIME ZONE NOT NULL,
-     end_time TIMESTAMP WITH TIME ZONE,
-     description TEXT,
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
+## 📚 Documentation
 
-   -- Create work_documentation table
-   CREATE TABLE work_documentation (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
-     project_id UUID REFERENCES projects(id) ON DELETE CASCADE,
-     user_id UUID REFERENCES auth.users(id),
-     photo_url TEXT,
-     notes TEXT,
-     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-   );
+- **START_HERE.md** - Complete setup guide
+- **TECHNICAL_OVERVIEW.md** - Architecture details
+- **WORKFLOW_SOLUTIONS.md** - Feature explanations
+- **QUINTEN_PERSONALIZED_FEATURES.md** - PM-specific features
 
-   -- Create storage bucket for work photos
-   INSERT INTO storage.buckets (id, name, public) VALUES ('work-photos', 'work-photos', true);
+## 🛠️ Tech Stack
 
-   -- Set up RLS policies
-   ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE tasks ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE time_logs ENABLE ROW LEVEL SECURITY;
-   ALTER TABLE work_documentation ENABLE ROW LEVEL SECURITY;
+- **Frontend:** React + TypeScript + Vite + Tailwind CSS
+- **Backend:** Supabase (PostgreSQL)
+- **Deployment:** Cloudflare Pages
+- **State:** React Context API
 
-   -- Profiles policies
-   CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
-   CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
-   CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
-
-   -- Clients policies
-   CREATE POLICY "Users can view all clients" ON clients FOR SELECT USING (true);
-   CREATE POLICY "Users can insert clients" ON clients FOR INSERT WITH CHECK (auth.uid() = created_by);
-   CREATE POLICY "Users can update clients" ON clients FOR UPDATE USING (auth.uid() = created_by);
-
-   -- Projects policies
-   CREATE POLICY "Users can view all projects" ON projects FOR SELECT USING (true);
-   CREATE POLICY "Users can insert projects" ON projects FOR INSERT WITH CHECK (auth.uid() = created_by);
-   CREATE POLICY "Users can update projects" ON projects FOR UPDATE USING (auth.uid() = created_by);
-
-   -- Tasks policies
-   CREATE POLICY "Users can view all tasks" ON tasks FOR SELECT USING (true);
-   CREATE POLICY "Users can insert tasks" ON tasks FOR INSERT WITH CHECK (auth.uid() = created_by);
-   CREATE POLICY "Users can update tasks" ON tasks FOR UPDATE USING (auth.uid() = created_by OR auth.uid() = assigned_to);
-
-   -- Time logs policies
-   CREATE POLICY "Users can view all time logs" ON time_logs FOR SELECT USING (true);
-   CREATE POLICY "Users can insert time logs" ON time_logs FOR INSERT WITH CHECK (auth.uid() = user_id);
-   CREATE POLICY "Users can update own time logs" ON time_logs FOR UPDATE USING (auth.uid() = user_id);
-
-   -- Work documentation policies
-   CREATE POLICY "Users can view all work docs" ON work_documentation FOR SELECT USING (true);
-   CREATE POLICY "Users can insert work docs" ON work_documentation FOR INSERT WITH CHECK (auth.uid() = user_id);
-   CREATE POLICY "Users can update own work docs" ON work_documentation FOR UPDATE USING (auth.uid() = user_id);
-
-   -- Storage policies
-   CREATE POLICY "Users can upload work photos" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'work-photos');
-   CREATE POLICY "Users can view work photos" ON storage.objects FOR SELECT USING (bucket_id = 'work-photos');
-   ```
-
-4. **Run the development server:**
-   ```bash
-   npm run dev
-   ```
-
-5. **Open your browser:**
-   Navigate to `http://localhost:5173`
-
-## Deployment to Cloudflare Pages
-
-1. **Build the project:**
-   ```bash
-   npm run build
-   ```
-
-2. **Deploy to Cloudflare Pages:**
-   - Connect your GitHub repository to Cloudflare Pages
-   - Set build command: `npm run build`
-   - Set build output directory: `dist`
-   - Add environment variables:
-     - `VITE_SUPABASE_URL`
-     - `VITE_SUPABASE_ANON_KEY`
-
-3. **Custom domain (optional):**
-   - Configure your custom domain in Cloudflare Pages settings
-
-## Usage
-
-### For Administrators/Managers:
-1. **Create Projects**: Add new fire protection projects with client information
-2. **Assign Tasks**: Break down projects into specific tasks and assign to technicians
-3. **Monitor Progress**: View dashboard for project status and completion rates
-4. **Review Documentation**: Check work photos and notes from completed tasks
-
-### For Technicians:
-1. **View Tasks**: See assigned tasks with priorities and deadlines
-2. **Clock In/Out**: Track time spent on tasks and projects
-3. **Document Work**: Upload photos and add notes for completed work
-4. **Update Status**: Mark tasks as in-progress or completed
-
-## Project Structure
+## 📊 Project Structure
 
 ```
 src/
-├── components/          # Reusable UI components
-│   ├── Layout.tsx      # Main layout wrapper
-│   ├── Navigation.tsx   # Top navigation bar
-│   └── ProtectedRoute.tsx # Route protection
-├── contexts/           # React contexts
-│   └── AuthContext.tsx # Authentication state
-├── lib/               # Utility libraries
-│   └── supabase.ts    # Supabase client configuration
-├── pages/             # Page components
+├── components/      # UI components
+│   ├── PMDashboard.tsx      # PM workflow
+│   ├── BudgetTracker.tsx    # Budget tracking
+│   └── DocumentLibrary.tsx  # Document browser
+├── lib/            # Business logic
+│   ├── pm-workflow.ts       # Daily workflows
+│   ├── project-planning.ts  # Project structures
+│   └── documents.ts         # Document CRUD
+├── pages/          # Route components
 │   ├── DashboardPage.tsx
-│   ├── LoginPage.tsx
 │   ├── ProjectsPage.tsx
-│   ├── RegisterPage.tsx
-│   ├── TasksPage.tsx
-│   ├── TimeTrackingPage.tsx
 │   └── WorkDocsPage.tsx
-└── style.css          # Global styles with Tailwind
+└── contexts/       # State management
+    └── AuthContext.tsx
 ```
 
-## Contributing
+## ✅ Features Complete
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+- [x] Daily workflow dashboard
+- [x] Budget tracking with alerts
+- [x] Client update automation
+- [x] Document management system
+- [x] Project templates
+- [x] Task management
+- [x] Time tracking
+- [x] Work documentation
+- [x] Upload automation
+- [x] Version control
 
-## License
+## 🎯 Built For Quinten
 
-This project is licensed under the MIT License.
+**Addresses:**
+- ✅ Need for structure → Phased project plans
+- ✅ Need for planning → Daily workflow dashboard
+- ✅ Need for budgeting → Budget tracker with alerts
 
-## Support
+**Leverages strengths:**
+- ✅ People skills → One-click client updates
+- ✅ Experience → Template-based workflows
+- ✅ Problem solving → Issue tracking built-in
 
-For support or questions, please contact the development team.
+## 📖 Usage
+
+### **Daily Morning:**
+1. Open dashboard
+2. See urgent tasks (red badges)
+3. Check client updates needed
+4. Review budget status
+5. Plan day
+
+### **During Work:**
+1. Complete tasks
+2. Log time
+3. Upload photos/notes
+4. Update documentation
+
+### **End of Day:**
+1. Send client updates (one-click!)
+2. Check budget variances
+3. Mark tasks complete
+4. Plan tomorrow
+
+## 🔗 Links
+
+- **App:** https://fire-protection-tracker.pages.dev
+- **GitHub:** https://github.com/GeorgeMcIntyre-Web/fire-protection
+- **Documentation:** See files in project root
+
+## 📞 Support
+
+- Read START_HERE.md for setup
+- Read WORKFLOW_SOLUTIONS.md for usage
+- Read TECHNICAL_OVERVIEW.md for architecture
+
+---
+
+**Built with ❤️ for fire protection professionals**
