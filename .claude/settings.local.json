@@ -15,7 +15,10 @@
       "Bash(PGPASSWORD='[YOUR-DB-PASSWORD]' psql:*)",
       "Bash(PGPASSWORD='Open1264!' psql:*)",
       "Bash(PGPASSWORD='8rti8FZhBMjUOjo7' psql:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nComplete Supabase setup with document management system\n\nMajor Features Added:\n- Full Supabase database integration with 9 tables\n- Document upload component with auto-parsing\n- Document library with category filtering and search\n- Document migration script for bulk uploads\n- 9-category document classification system\n- Authentication fully configured\n- Storage buckets configured\n\nDatabase Tables:\n- profiles (user management with roles)\n- clients, projects, tasks, time_logs\n- work_documentation\n- document_library (9-category system)\n- document_categories (seeded)\n- project_documents (linking)\n\nNew Components:\n- src/components/DocumentUpload.tsx - File upload with auto-detection\n- src/pages/DocumentsPage.tsx - Documents page with toggle\n\nUpdated Components:\n- src/App.tsx - Added /documents route\n- src/components/Navigation.tsx - Added Documents menu item\n- .env - Updated with real Supabase credentials\n\nMigration Tools:\n- scripts/migrate-documents.ts - Bulk migration script\n- DOCUMENT_MIGRATION_GUIDE.md - Step-by-step instructions\n\nDocumentation:\n- SETUP_COMPLETE.md - Comprehensive setup guide\n- SUPABASE_SETUP_SIMPLE.md - Quick reference\n- CLARIFY_SUPABASE.md - Configuration details\n\nSQL Scripts:\n- supabase-complete-setup.sql - Full schema\n- supabase-setup-fixed.sql - Fixed version\n- supabase-cleanup-demo-data.sql - Cleanup script\n\nFeatures:\n- Auto-parse document codes (CFM-XXX-XXX-###)\n- Auto-extract versions (Rev ##)\n- Auto-categorize based on folder structure\n- Role-based access (admin/manager/technician)\n- Row Level Security enabled\n- Storage access controls\n\nStatus: Production ready, all features tested\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git commit:*)",
+      "Bash(git push)"
     ],
     "deny": [],
     "ask": []
