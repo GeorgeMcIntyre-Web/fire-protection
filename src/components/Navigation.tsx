@@ -16,6 +16,7 @@ import {
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+  { name: 'Documents', href: '/documents', icon: DocumentTextIcon },
   { name: 'Templates', href: '/templates', icon: DocumentDuplicateIcon },
   { name: 'Projects', href: '/projects', icon: FolderIcon },
   { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon },
@@ -31,14 +32,14 @@ export const Navigation: React.FC = () => {
 
   return (
     <nav className="bg-gray-800 shadow-lg border-b border-gray-700">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
+          <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
               <div className="h-10 w-10 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-sm">FP</span>
               </div>
-              <span className="ml-3 text-xl font-bold text-white">
+              <span className="ml-3 text-xl font-bold text-white whitespace-nowrap">
                 Fire Protection
               </span>
             </div>
@@ -49,7 +50,7 @@ export const Navigation: React.FC = () => {
                   <Link
                     key={item.name}
                     to={item.href}
-                    className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                    className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 whitespace-nowrap ${
                       isActive
                         ? 'bg-blue-600 text-white shadow-lg'
                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'
@@ -62,15 +63,15 @@ export const Navigation: React.FC = () => {
               })}
             </div>
           </div>
-          
-          <div className="hidden lg:flex lg:items-center lg:space-x-4">
-            <div className="flex items-center">
-              <UserCircleIcon className="h-6 w-6 text-gray-400 mr-2" />
-              <span className="text-sm text-gray-300">{user?.email}</span>
+
+          <div className="hidden lg:flex lg:items-center lg:space-x-3 lg:ml-4 flex-shrink-0">
+            <div className="flex items-center bg-gray-700 rounded-lg px-3 py-1.5">
+              <UserCircleIcon className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
+              <span className="text-sm text-gray-300 whitespace-nowrap">{user?.email}</span>
             </div>
             <button
               onClick={() => signOut()}
-              className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2 hover:bg-gray-700 rounded-lg"
+              className="text-sm text-gray-400 hover:text-white transition-colors px-3 py-2 hover:bg-gray-700 rounded-lg whitespace-nowrap"
             >
               Sign out
             </button>

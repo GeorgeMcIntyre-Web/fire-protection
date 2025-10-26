@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\Users\\George\\source\\repos\\fire-protection_data\\fire-pro-docs\\OneDrive_1_10-26-2025\" /b)",
+      "Bash(dir \"C:\\Users\\George\\source\\repos\\fire-protection_data\\fire-pro-docs\\OneDrive_1_10-26-2025\" /s /b)",
+      "Bash(findstr:*)",
+      "Read(//c/Users/George/source/repos/fire-protection_data/fire-pro-docs/OneDrive_1_10-26-2025/**)",
+      "Bash(supabase --version:*)",
+      "Bash(npm install:*)",
+      "Bash(scoop:*)",
+      "Bash(supabase login:*)",
+      "Bash(psql:*)",
+      "Bash(PGPASSWORD='6G#au?y-9JMR?Sh' psql:*)",
+      "Bash(npm run dev:*)",
+      "Bash(PGPASSWORD='[YOUR-DB-PASSWORD]' psql:*)",
+      "Bash(PGPASSWORD='Open1264!' psql:*)",
+      "Bash(PGPASSWORD='8rti8FZhBMjUOjo7' psql:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
