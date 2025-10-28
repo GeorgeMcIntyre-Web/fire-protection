@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase, DEMO_MODE } from '../lib/supabase'
+import { calculateProjectCosts } from '../lib/project-planning'
 import { 
   CurrencyDollarIcon,
   ExclamationTriangleIcon,
@@ -28,36 +30,69 @@ export const BudgetTracker: React.FC = () => {
   }, [user])
 
   const fetchBudgetData = async () => {
-    // This would fetch from API - using demo data for now
-    const demoData: BudgetSummary[] = [
-      {
-        project_name: 'Shoprite Warehouse',
-        estimated: 85000,
-        actual: 92000,
-        variance: 7000,
-        variance_percentage: 8.2,
-        status: 'at_risk'
-      },
-      {
-        project_name: 'Residential Complex',
-        estimated: 45000,
-        actual: 43500,
-        variance: -1500,
-        variance_percentage: -3.3,
-        status: 'within_budget'
-      },
-      {
-        project_name: 'Office Building',
-        estimated: 120000,
-        actual: 110000,
-        variance: -10000,
-        variance_percentage: -8.3,
-        status: 'within_budget'
+    setLoading(true)
+    try {
+      // Fallback to demo data in DEMO_MODE
+      if (DEMO_MODE) {
+        const demoData: BudgetSummary[] = [
+          {
+            project_name: 'Shoprite Warehouse',
+            estimated: 85000,
+            actual: 92000,
+            variance: 7000,
+            variance_percentage: 8.2,
+            status: 'at_risk'
+          },
+          {
+            project_name: 'Residential Complex',
+            estimated: 45000,
+            actual: 43500,
+            variance: -1500,
+            variance_percentage: -3.3,
+            status: 'within_budget'
+          },
+          {
+            project_name: 'Office Building',
+            estimated: 120000,
+            actual: 110000,
+            variance: -10000,
+            variance_percentage: -8.3,
+            status: 'within_budget'
+          }
+        ]
+        setBudgets(demoData)
+        return
       }
-    ]
 
-    setBudgets(demoData)
-    setLoading(false)
+      // Fetch projects and compute budgets from Supabase
+      const { data: projects, error } = await supabase
+        .from('projects')
+        .select('id, name')
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+
+      const budgetsFromDb: BudgetSummary[] = await Promise.all(
+        (projects || []).map(async (project) => {
+          const costs = await calculateProjectCosts(project.id)
+          return {
+            project_name: project.name,
+            estimated: costs.estimated,
+            actual: costs.actual,
+            variance: costs.variance,
+            variance_percentage: costs.variance_percentage,
+            status: costs.status,
+          }
+        })
+      )
+
+      setBudgets(budgetsFromDb)
+    } catch (err) {
+      console.error('Error fetching budget data:', err)
+      setBudgets([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const formatCurrency = (amount: number) => {
