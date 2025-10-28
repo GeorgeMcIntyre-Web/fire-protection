@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, DEMO_MODE } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { 
   PlayIcon, 
@@ -60,6 +60,33 @@ export const TimeTrackingPage: React.FC = () => {
     fetchTasks()
     checkActiveTracking()
   }, [])
+
+  // Realtime subscription for time_logs
+  useEffect(() => {
+    if (DEMO_MODE || !user) return
+
+    const channel = supabase
+      .channel('time-logs-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'time_logs',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Time logs change received:', payload)
+          fetchTimeLogs()
+          checkActiveTracking()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
 
   const fetchTimeLogs = async () => {
     try {

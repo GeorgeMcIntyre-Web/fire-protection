@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
+import { supabase, DEMO_MODE } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { 
   PlusIcon, 
@@ -68,6 +68,31 @@ export const TasksPage: React.FC = () => {
     fetchTasks()
     fetchProjects()
     fetchUsers()
+  }, [])
+
+  // Realtime subscription for tasks
+  useEffect(() => {
+    if (DEMO_MODE) return
+
+    const channel = supabase
+      .channel('tasks-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          console.log('Tasks change received:', payload)
+          fetchTasks()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [])
 
   const fetchTasks = async () => {
