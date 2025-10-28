@@ -4,7 +4,8 @@ import {
   CloudArrowUpIcon,
   XMarkIcon,
   DocumentTextIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  CameraIcon
 } from '@heroicons/react/24/outline'
 import {
   getDocumentCategories,
@@ -13,6 +14,8 @@ import {
   getCategoryFromCode,
   type DocumentCategory
 } from '../lib/documents'
+import { showError, showSuccess, withToast } from '../lib/toast'
+import { DocumentListSkeleton } from './SkeletonLoader'
 
 interface DocumentUploadProps {
   onUploadComplete?: () => void
@@ -56,6 +59,7 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
       setCategories(cats)
     } catch (error) {
       console.error('Error fetching categories:', error)
+      showError('Failed to load document categories', error instanceof Error ? error.message : 'Unknown error')
     }
   }
 
@@ -92,6 +96,8 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
     setUploading(true)
     const progress = new Map<string, number>()
     const complete = new Map<string, boolean>()
+    let successCount = 0
+    let failCount = 0
 
     for (const file of selectedFiles) {
       try {
@@ -115,13 +121,20 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
         complete.set(file.name, true)
         setUploadProgress(new Map(progress))
         setUploadComplete(new Map(complete))
+        successCount++
       } catch (error) {
         console.error(`Error uploading ${file.name}:`, error)
-        alert(`Failed to upload ${file.name}`)
+        showError(`Failed to upload ${file.name}`, error instanceof Error ? error.message : 'Unknown error')
+        failCount++
       }
     }
 
     setUploading(false)
+
+    // Show success message
+    if (successCount > 0) {
+      showSuccess(`Successfully uploaded ${successCount} ${successCount === 1 ? 'document' : 'documents'}`)
+    }
 
     // Reset form after a delay
     setTimeout(() => {
@@ -161,7 +174,16 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
             onChange={handleFileSelect}
             className="hidden"
             id="file-upload"
-            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt"
+            accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,image/*"
+            disabled={uploading}
+          />
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleFileSelect}
+            className="hidden"
+            id="camera-upload"
             disabled={uploading}
           />
           <label
@@ -173,9 +195,20 @@ export const DocumentUpload: React.FC<DocumentUploadProps> = ({
               Click to upload or drag and drop
             </p>
             <p className="text-sm text-gray-400">
-              PDF, DOC, DOCX, XLS, XLSX, TXT (max 50MB)
+              PDF, DOC, DOCX, XLS, XLSX, TXT, Images (max 50MB)
             </p>
           </label>
+          
+          {/* Mobile camera button */}
+          <div className="mt-4 md:hidden">
+            <label
+              htmlFor="camera-upload"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg cursor-pointer transition-colors active:scale-95"
+            >
+              <CameraIcon className="h-5 w-5" />
+              <span>Take Photo</span>
+            </label>
+          </div>
         </div>
 
         {/* Selected Files */}

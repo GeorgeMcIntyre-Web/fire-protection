@@ -10,6 +10,8 @@ import {
   generateClientUpdate,
   getQuickActions
 } from '../lib/pm-workflow'
+import { showError, showSuccess } from '../lib/toast'
+import { PMDashboardSkeleton } from './SkeletonLoader'
 import {
   ExclamationTriangleIcon,
   CheckCircleIcon,
@@ -52,24 +54,26 @@ export const PMDashboard: React.FC<Props> = ({ className }) => {
       setDocumentation(docs)
     } catch (error) {
       console.error('Error fetching PM data:', error)
+      showError('Failed to load dashboard data', error instanceof Error ? error.message : 'Unknown error')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleCopyUpdate = (project: ClientUpdate) => {
-    const message = generateClientUpdate(project)
-    navigator.clipboard.writeText(message)
-    setCopySuccess(project.project_id)
-    setTimeout(() => setCopySuccess(null), 2000)
+  const handleCopyUpdate = async (project: ClientUpdate) => {
+    try {
+      const message = generateClientUpdate(project)
+      await navigator.clipboard.writeText(message)
+      setCopySuccess(project.project_id)
+      showSuccess('Update message copied to clipboard')
+      setTimeout(() => setCopySuccess(null), 2000)
+    } catch (error) {
+      showError('Failed to copy to clipboard', error instanceof Error ? error.message : 'Unknown error')
+    }
   }
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-      </div>
-    )
+    return <PMDashboardSkeleton />
   }
 
   const quickActions = getQuickActions(dailyWork, clientUpdates)

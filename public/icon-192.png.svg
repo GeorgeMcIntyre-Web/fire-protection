@@ -1,0 +1,5 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" fill="#1f2937"/>
+  <path d="M96 40 L96 80 L120 80 L96 120 L96 152 L72 112 L72 80 Z" fill="#ef4444" stroke="#dc2626" stroke-width="2"/>
+  <text x="96" y="180" font-family="Arial" font-size="20" fill="#fff" text-anchor="middle" font-weight="bold">CFM</text>
+</svg>
