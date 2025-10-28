@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { supabase, DEMO_MODE } from '../lib/supabase'
 import { 
   type DailyWorkItem, 
   type ClientUpdate, 
@@ -34,6 +35,47 @@ export const PMDashboard: React.FC<Props> = ({ className }) => {
 
   useEffect(() => {
     fetchPMData()
+  }, [user])
+
+  // Realtime subscriptions for projects, tasks, documentation
+  useEffect(() => {
+    if (!user || DEMO_MODE) return
+
+    const channel = supabase
+      .channel('pm-dashboard-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        () => {
+          fetchPMData()
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        () => {
+          fetchPMData()
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'project_documents' },
+        () => {
+          fetchPMData()
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'work_documentation' },
+        () => {
+          fetchPMData()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
   }, [user])
 
   const fetchPMData = async () => {

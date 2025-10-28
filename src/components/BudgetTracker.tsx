@@ -29,6 +29,34 @@ export const BudgetTracker: React.FC = () => {
     fetchBudgetData()
   }, [user])
 
+  // Optional realtime updates: refresh budgets when time logs or projects change
+  useEffect(() => {
+    if (!user || DEMO_MODE) return
+
+    const channel = supabase
+      .channel('budget-tracker-realtime')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'time_logs' },
+        () => fetchBudgetData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects' },
+        () => fetchBudgetData()
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'tasks' },
+        () => fetchBudgetData()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [user])
+
   const fetchBudgetData = async () => {
     setLoading(true)
     try {
