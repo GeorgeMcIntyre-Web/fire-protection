@@ -10,6 +10,7 @@ import { TasksPage } from './pages/TasksPage'
 import { ClientsPage } from './pages/ClientsPage'
 import { TimeTrackingPage } from './pages/TimeTrackingPage'
 import { WorkDocsPage } from './pages/WorkDocsPage'
+import { ReportsPage } from './pages/ReportsPage'
 import { Layout } from './components/Layout'
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
         <Route path="clients" element={<ClientsPage />} />
         <Route path="time-tracking" element={<TimeTrackingPage />} />
         <Route path="work-docs" element={<WorkDocsPage />} />
+        <Route path="reports" element={<ReportsPage />} />
       </Route>
     </Routes>
   )

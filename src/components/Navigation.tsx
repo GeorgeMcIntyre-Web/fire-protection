@@ -11,7 +11,8 @@ import {
   XMarkIcon,
   UserCircleIcon,
   BuildingOfficeIcon,
-  DocumentDuplicateIcon
+  DocumentDuplicateIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -23,6 +24,7 @@ const navigation = [
   { name: 'Clients', href: '/clients', icon: BuildingOfficeIcon },
   { name: 'Time Tracking', href: '/time-tracking', icon: ClockIcon },
   { name: 'Work Docs', href: '/work-docs', icon: DocumentTextIcon },
+  { name: 'Reports', href: '/reports', icon: ChartBarIcon },
 ]
 
 export const Navigation: React.FC = () => {

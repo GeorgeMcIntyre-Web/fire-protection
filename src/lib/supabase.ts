@@ -227,6 +227,41 @@ export interface Database {
           updated_at?: string
         }
       }
+      client_communications: {
+        Row: {
+          id: string
+          project_id: string
+          client_name: string
+          message: string
+          sent_date: string
+          sent_by: string | null
+          communication_type: 'update' | 'alert' | 'milestone' | 'completion'
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          client_name: string
+          message: string
+          sent_date?: string
+          sent_by?: string | null
+          communication_type?: 'update' | 'alert' | 'milestone' | 'completion'
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          client_name?: string
+          message?: string
+          sent_date?: string
+          sent_by?: string | null
+          communication_type?: 'update' | 'alert' | 'milestone' | 'completion'
+          created_at?: string
+          updated_at?: string
+        }
+      }
     }
   }
 }
