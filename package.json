@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "upload-docs": "node scripts/upload-documents.js"
+    "upload-docs": "node scripts/upload-documents.js",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.5",
@@ -24,6 +27,13 @@
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
     "typescript": "^5.6.2",
-    "vite": "^5.4.6"
+    "vite": "^5.4.6",
+    "vitest": "^1.6.0",
+    "@testing-library/react": "^14.2.1",
+    "@testing-library/jest-dom": "^6.4.8",
+    "@testing-library/user-event": "^14.5.2",
+    "jsdom": "^24.0.0",
+    "@types/jsdom": "^21.1.7",
+    "@types/node": "^20.11.30"
   }
 }
