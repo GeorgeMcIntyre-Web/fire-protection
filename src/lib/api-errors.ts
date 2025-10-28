@@ -11,29 +11,36 @@ import { PostgrestError } from '@supabase/supabase-js'
  * Standard API error class
  */
 export class ApiError extends Error {
+  code?: string
+  details?: any
+
   constructor(
     message: string,
-    public code?: string,
-    public details?: any
+    code?: string,
+    details?: any
   ) {
     super(message)
     this.name = 'ApiError'
+    this.code = code
+    this.details = details
   }
 }
 
 /**
  * Error types for categorization
  */
-export enum ErrorType {
-  NETWORK = 'NETWORK',
-  AUTHENTICATION = 'AUTHENTICATION',
-  AUTHORIZATION = 'AUTHORIZATION',
-  VALIDATION = 'VALIDATION',
-  NOT_FOUND = 'NOT_FOUND',
-  CONFLICT = 'CONFLICT',
-  SERVER = 'SERVER',
-  UNKNOWN = 'UNKNOWN',
-}
+export const ErrorType = {
+  NETWORK: 'NETWORK',
+  AUTHENTICATION: 'AUTHENTICATION',
+  AUTHORIZATION: 'AUTHORIZATION',
+  VALIDATION: 'VALIDATION',
+  NOT_FOUND: 'NOT_FOUND',
+  CONFLICT: 'CONFLICT',
+  SERVER: 'SERVER',
+  UNKNOWN: 'UNKNOWN',
+} as const
+
+export type ErrorType = typeof ErrorType[keyof typeof ErrorType]
 
 /**
  * Get user-friendly error message based on error type
