@@ -23,13 +23,13 @@ interface DocumentUploadProps {
 export const DocumentUpload: React.FC<DocumentUploadProps> = ({
   onUploadComplete,
   defaultCategoryId,
-  projectId: _projectId
+  projectId: _projectId // Reserved for future project linking
 }) => {
   const { user } = useAuth()
   const [categories, setCategories] = useState<DocumentCategory[]>([])
   const [selectedFiles, setSelectedFiles] = useState<File[]>([])
   const [uploading, setUploading] = useState(false)
-  const [_uploadProgress, setUploadProgress] = useState<Map<string, number>>(new Map())
+  const [_uploadProgress, setUploadProgress] = useState<Map<string, number>>(new Map()) // Reserved for future progress display
   const [uploadComplete, setUploadComplete] = useState<Map<string, boolean>>(new Map())
 
   // Form fields
