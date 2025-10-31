@@ -10,6 +10,8 @@ import { TasksPage } from './pages/TasksPage'
 import { ClientsPage } from './pages/ClientsPage'
 import { TimeTrackingPage } from './pages/TimeTrackingPage'
 import { WorkDocsPage } from './pages/WorkDocsPage'
+import { TermsPage } from './pages/TermsPage'
+import { PrivacyPage } from './pages/PrivacyPage'
 import { Layout } from './components/Layout'
 
 function App() {
@@ -17,6 +19,8 @@ function App() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/terms" element={<TermsPage />} />
+      <Route path="/privacy" element={<PrivacyPage />} />
       <Route
         path="/"
         element={

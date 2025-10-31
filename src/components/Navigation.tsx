@@ -11,7 +11,8 @@ import {
   XMarkIcon,
   UserCircleIcon,
   BuildingOfficeIcon,
-  DocumentDuplicateIcon
+  DocumentDuplicateIcon,
+  QuestionMarkCircleIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -65,6 +66,38 @@ export const Navigation: React.FC = () => {
           </div>
 
           <div className="hidden lg:flex lg:items-center lg:space-x-3 lg:ml-4 flex-shrink-0">
+            <div className="relative group">
+              <button
+                className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg"
+                aria-label="Help"
+              >
+                <QuestionMarkCircleIcon className="h-5 w-5" />
+              </button>
+              <div className="absolute right-0 mt-2 w-48 bg-gray-700 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 border border-gray-600">
+                <div className="py-2">
+                  <a
+                    href="https://github.com/yourusername/fire-protection-pm"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white"
+                  >
+                    Documentation
+                  </a>
+                  <Link
+                    to="/terms"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white"
+                  >
+                    Terms of Service
+                  </Link>
+                  <Link
+                    to="/privacy"
+                    className="block px-4 py-2 text-sm text-gray-300 hover:bg-gray-600 hover:text-white"
+                  >
+                    Privacy Policy
+                  </Link>
+                </div>
+              </div>
+            </div>
             <div className="flex items-center bg-gray-700 rounded-lg px-3 py-1.5">
               <UserCircleIcon className="h-5 w-5 text-gray-400 mr-2 flex-shrink-0" />
               <span className="text-sm text-gray-300 whitespace-nowrap">{user?.email}</span>
