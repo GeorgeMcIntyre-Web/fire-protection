@@ -1,0 +1,228 @@
+name: Security Scanning
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  schedule:
+    # Run security scan every day at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  dependency-security:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate
+        continue-on-error: true
+      
+      - name: Run npm audit with JSON output
+        run: npm audit --json > audit-report.json
+        continue-on-error: true
+      
+      - name: Upload audit report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-audit-report
+          path: audit-report.json
+          retention-days: 90
+      
+      - name: Check for critical vulnerabilities
+        run: |
+          CRITICAL=$(npm audit --json | jq '.metadata.vulnerabilities.critical')
+          HIGH=$(npm audit --json | jq '.metadata.vulnerabilities.high')
+          
+          if [ "$CRITICAL" -gt "0" ] || [ "$HIGH" -gt "0" ]; then
+            echo "⚠️ Found $CRITICAL critical and $HIGH high severity vulnerabilities!"
+            exit 1
+          fi
+
+  codeql-analysis:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ['javascript', 'typescript']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: ${{ matrix.language }}
+          queries: security-and-quality
+      
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+      
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+        with:
+          category: "/language:${{ matrix.language }}"
+
+  secret-scanning:
+    name: Secret Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: TruffleHog Secret Scan
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --debug --only-verified
+
+  license-compliance:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Check licenses
+        run: |
+          npx license-checker --summary
+          npx license-checker --json > licenses.json
+        continue-on-error: true
+      
+      - name: Upload license report
+        uses: actions/upload-artifact@v3
+        with:
+          name: license-report
+          path: licenses.json
+          retention-days: 90
+
+  sast-analysis:
+    name: Static Application Security Testing
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint security rules
+        run: |
+          npm install --save-dev eslint-plugin-security
+          npx eslint --ext .js,.jsx,.ts,.tsx --plugin security --rule 'security/detect-object-injection: error' src/
+        continue-on-error: true
+      
+      - name: Scan for hardcoded secrets
+        run: |
+          echo "Scanning for common patterns..."
+          # Check for API keys, tokens, passwords in code
+          if grep -r -E "(apiKey|api_key|password|secret|token|API_KEY)" src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | grep -v "import" | grep -v "//"; then
+            echo "⚠️ Potential hardcoded secrets found!"
+            grep -r -E "(apiKey|api_key|password|secret|token)" src/ --include="*.ts" --include="*.tsx" --include="*.js" --include="*.jsx" | grep -v "import" | grep -v "//"
+            exit 1
+          fi
+          echo "✓ No hardcoded secrets detected"
+
+  security-report:
+    name: Security Summary Report
+    runs-on: ubuntu-latest
+    needs: [dependency-security, codeql-analysis, secret-scanning, license-compliance, sast-analysis]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Generate security report
+        run: |
+          cat << EOF > security-report.md
+          # Security Scan Report
+          
+          **Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          
+          ## Scan Results
+          
+          | Check | Status |
+          |-------|--------|
+          | Dependency Security | ${{ needs.dependency-security.result }} |
+          | CodeQL Analysis | ${{ needs.codeql-analysis.result }} |
+          | Secret Scanning | ${{ needs.secret-scanning.result }} |
+          | License Compliance | ${{ needs.license-compliance.result }} |
+          | SAST Analysis | ${{ needs.sast-analysis.result }} |
+          
+          ## Recommendations
+          
+          - Review all failed checks immediately
+          - Update vulnerable dependencies
+          - Rotate any exposed secrets
+          - Address any security findings in CodeQL
+          
+          EOF
+          
+          cat security-report.md
+      
+      - name: Upload security report
+        uses: actions/upload-artifact@v3
+        with:
+          name: security-summary-report
+          path: security-report.md
+          retention-days: 90
+      
+      - name: Comment on PR (if applicable)
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const report = fs.readFileSync('security-report.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: report
+            });

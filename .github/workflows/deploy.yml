@@ -1,0 +1,177 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: Run tests
+        run: npm test
+        env:
+          CI: true
+        continue-on-error: true
+      
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+          # Add your production environment variables here
+          # VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          # VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+      
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 7
+
+  deploy-preview:
+    name: Deploy Preview (PR)
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: dist/
+      
+      - name: Deploy to Cloudflare Pages (Preview)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: fire-protection-tracker
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Comment PR with preview URL
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚀 Preview deployment ready!\n\nView your changes at: https://preview-${{ github.event.pull_request.number }}.fire-protection-tracker.pages.dev'
+            })
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://fire-protection-tracker.pages.dev
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: build-artifacts
+          path: dist/
+      
+      - name: Deploy to Cloudflare Pages (Production)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: fire-protection-tracker
+          directory: dist
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+      
+      - name: Verify deployment
+        run: |
+          echo "Waiting for deployment to propagate..."
+          sleep 10
+          curl -sSf https://fire-protection-tracker.pages.dev || exit 1
+          echo "Deployment verification successful!"
+      
+      - name: Create deployment notification
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.repos.createDeploymentStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              deployment_id: context.payload.deployment.id,
+              state: 'success',
+              environment_url: 'https://fire-protection-tracker.pages.dev',
+              description: 'Deployment completed successfully'
+            })
+
+  rollback:
+    name: Rollback on Failure
+    runs-on: ubuntu-latest
+    needs: deploy-production
+    if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get previous commit
+        id: previous
+        run: |
+          PREV_COMMIT=$(git rev-parse HEAD~1)
+          echo "commit=$PREV_COMMIT" >> $GITHUB_OUTPUT
+      
+      - name: Notify about rollback
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '⚠️ Deployment Failed - Rollback Required',
+              body: 'Deployment to production failed. Please review the logs and consider rolling back to commit: ${{ steps.previous.outputs.commit }}',
+              labels: ['deployment', 'critical']
+            })
