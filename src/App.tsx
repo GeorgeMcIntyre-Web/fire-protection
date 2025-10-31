@@ -11,6 +11,9 @@ import { ClientsPage } from './pages/ClientsPage'
 import { TimeTrackingPage } from './pages/TimeTrackingPage'
 import { WorkDocsPage } from './pages/WorkDocsPage'
 import { ReportsPage } from './pages/ReportsPage'
+import AnalyticsPage from './pages/AnalyticsPage'
+import ExecutiveDashboard from './pages/ExecutiveDashboard'
+import InsightsPage from './pages/InsightsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { Layout } from './components/Layout'
@@ -40,6 +43,9 @@ function App() {
         <Route path="time-tracking" element={<TimeTrackingPage />} />
         <Route path="work-docs" element={<WorkDocsPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="analytics" element={<AnalyticsPage />} />
+        <Route path="executive" element={<ExecutiveDashboard />} />
+        <Route path="insights" element={<InsightsPage />} />
       </Route>
     </Routes>
   )
