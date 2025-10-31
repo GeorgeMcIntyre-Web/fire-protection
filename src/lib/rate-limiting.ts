@@ -266,8 +266,8 @@ export function withRateLimit(
   getUserId?: () => string | null
 ) {
   return function (
-    target: any,
-    propertyKey: string,
+    _target: any,
+    _propertyKey: string,
     descriptor: PropertyDescriptor
   ) {
     const originalMethod = descriptor.value;

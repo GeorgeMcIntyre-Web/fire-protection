@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <!-- Background -->
+  <rect width="512" height="512" fill="#1f2937"/>
+  
+  <!-- Fire Icon -->
+  <g transform="translate(256, 256)">
+    <path d="M0-153.6 C76.8-128 102.4-76.8 102.4-25.6 
+             C102.4 51.2 51.2 102.4 0 128
+             C-51.2 102.4 -102.4 51.2 -102.4-25.6
+             C-102.4-76.8 -76.8-128 0-153.6 Z" 
+          fill="#f97316" stroke="#ea580c" stroke-width="2"/>
+    <path d="M0-102.4 C40.96-87.04 61.44-51.2 61.44-10.24
+             C61.44 40.96 25.6 76.8 0 92.16
+             C-25.6 76.8 -61.44 40.96 -61.44-10.24
+             C-61.44-51.2 -40.96-87.04 0-102.4 Z"
+          fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Text (for larger icons) -->
+  <text x="256" y="435.2" 
+        font-family="Arial, sans-serif" 
+        font-size="61.44" 
+        font-weight="bold" 
+        fill="#f3f4f6" 
+        text-anchor="middle">FP TRACKER</text>
+</svg>

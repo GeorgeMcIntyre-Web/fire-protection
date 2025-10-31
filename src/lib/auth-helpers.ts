@@ -700,7 +700,7 @@ export async function secureSignIn(
     // For now, this is client-side only
     
     // Sign in
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });

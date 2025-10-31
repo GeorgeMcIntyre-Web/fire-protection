@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <!-- Background -->
+  <rect width="128" height="128" fill="#1f2937"/>
+  
+  <!-- Fire Icon -->
+  <g transform="translate(64, 64)">
+    <path d="M0-38.4 C19.2-32 25.6-19.2 25.6-6.4 
+             C25.6 12.8 12.8 25.6 0 32
+             C-12.8 25.6 -25.6 12.8 -25.6-6.4
+             C-25.6-19.2 -19.2-32 0-38.4 Z" 
+          fill="#f97316" stroke="#ea580c" stroke-width="2"/>
+    <path d="M0-25.6 C10.24-21.76 15.36-12.8 15.36-2.56
+             C15.36 10.24 6.4 19.2 0 23.04
+             C-6.4 19.2 -15.36 10.24 -15.36-2.56
+             C-15.36-12.8 -10.24-21.76 0-25.6 Z"
+          fill="#fbbf24" stroke="#f59e0b" stroke-width="1.5"/>
+  </g>
+  
+  <!-- Text (for larger icons) -->
+  
+</svg>

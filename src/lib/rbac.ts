@@ -51,68 +51,70 @@ export const ROLES: Record<UserRole, RoleDefinition> = {
 // PERMISSION DEFINITIONS
 // ============================================
 
-export enum Permission {
+export const Permission = {
   // User Management
-  VIEW_USERS = 'view_users',
-  CREATE_USERS = 'create_users',
-  UPDATE_USERS = 'update_users',
-  DELETE_USERS = 'delete_users',
-  MANAGE_ROLES = 'manage_roles',
+  VIEW_USERS: 'view_users',
+  CREATE_USERS: 'create_users',
+  UPDATE_USERS: 'update_users',
+  DELETE_USERS: 'delete_users',
+  MANAGE_ROLES: 'manage_roles',
   
   // Project Management
-  VIEW_ALL_PROJECTS = 'view_all_projects',
-  VIEW_ASSIGNED_PROJECTS = 'view_assigned_projects',
-  CREATE_PROJECTS = 'create_projects',
-  UPDATE_PROJECTS = 'update_projects',
-  DELETE_PROJECTS = 'delete_projects',
-  ARCHIVE_PROJECTS = 'archive_projects',
+  VIEW_ALL_PROJECTS: 'view_all_projects',
+  VIEW_ASSIGNED_PROJECTS: 'view_assigned_projects',
+  CREATE_PROJECTS: 'create_projects',
+  UPDATE_PROJECTS: 'update_projects',
+  DELETE_PROJECTS: 'delete_projects',
+  ARCHIVE_PROJECTS: 'archive_projects',
   
   // Task Management
-  VIEW_ALL_TASKS = 'view_all_tasks',
-  VIEW_ASSIGNED_TASKS = 'view_assigned_tasks',
-  CREATE_TASKS = 'create_tasks',
-  UPDATE_TASKS = 'update_tasks',
-  DELETE_TASKS = 'delete_tasks',
-  ASSIGN_TASKS = 'assign_tasks',
+  VIEW_ALL_TASKS: 'view_all_tasks',
+  VIEW_ASSIGNED_TASKS: 'view_assigned_tasks',
+  CREATE_TASKS: 'create_tasks',
+  UPDATE_TASKS: 'update_tasks',
+  DELETE_TASKS: 'delete_tasks',
+  ASSIGN_TASKS: 'assign_tasks',
   
   // Client Management
-  VIEW_CLIENTS = 'view_clients',
-  CREATE_CLIENTS = 'create_clients',
-  UPDATE_CLIENTS = 'update_clients',
-  DELETE_CLIENTS = 'delete_clients',
+  VIEW_CLIENTS: 'view_clients',
+  CREATE_CLIENTS: 'create_clients',
+  UPDATE_CLIENTS: 'update_clients',
+  DELETE_CLIENTS: 'delete_clients',
   
   // Time Tracking
-  VIEW_ALL_TIME_LOGS = 'view_all_time_logs',
-  VIEW_OWN_TIME_LOGS = 'view_own_time_logs',
-  CREATE_TIME_LOGS = 'create_time_logs',
-  UPDATE_TIME_LOGS = 'update_time_logs',
-  DELETE_TIME_LOGS = 'delete_time_logs',
-  APPROVE_TIME_LOGS = 'approve_time_logs',
+  VIEW_ALL_TIME_LOGS: 'view_all_time_logs',
+  VIEW_OWN_TIME_LOGS: 'view_own_time_logs',
+  CREATE_TIME_LOGS: 'create_time_logs',
+  UPDATE_TIME_LOGS: 'update_time_logs',
+  DELETE_TIME_LOGS: 'delete_time_logs',
+  APPROVE_TIME_LOGS: 'approve_time_logs',
   
   // Work Documentation
-  VIEW_ALL_WORK_DOCS = 'view_all_work_docs',
-  VIEW_OWN_WORK_DOCS = 'view_own_work_docs',
-  CREATE_WORK_DOCS = 'create_work_docs',
-  UPDATE_WORK_DOCS = 'update_work_docs',
-  DELETE_WORK_DOCS = 'delete_work_docs',
+  VIEW_ALL_WORK_DOCS: 'view_all_work_docs',
+  VIEW_OWN_WORK_DOCS: 'view_own_work_docs',
+  CREATE_WORK_DOCS: 'create_work_docs',
+  UPDATE_WORK_DOCS: 'update_work_docs',
+  DELETE_WORK_DOCS: 'delete_work_docs',
   
   // Document Library
-  VIEW_DOCUMENTS = 'view_documents',
-  UPLOAD_DOCUMENTS = 'upload_documents',
-  UPDATE_DOCUMENTS = 'update_documents',
-  DELETE_DOCUMENTS = 'delete_documents',
-  MANAGE_CATEGORIES = 'manage_categories',
+  VIEW_DOCUMENTS: 'view_documents',
+  UPLOAD_DOCUMENTS: 'upload_documents',
+  UPDATE_DOCUMENTS: 'update_documents',
+  DELETE_DOCUMENTS: 'delete_documents',
+  MANAGE_CATEGORIES: 'manage_categories',
   
   // Reports & Analytics
-  VIEW_REPORTS = 'view_reports',
-  EXPORT_DATA = 'export_data',
-  VIEW_ANALYTICS = 'view_analytics',
+  VIEW_REPORTS: 'view_reports',
+  EXPORT_DATA: 'export_data',
+  VIEW_ANALYTICS: 'view_analytics',
   
   // System Settings
-  VIEW_SETTINGS = 'view_settings',
-  UPDATE_SETTINGS = 'update_settings',
-  VIEW_AUDIT_LOGS = 'view_audit_logs',
-}
+  VIEW_SETTINGS: 'view_settings',
+  UPDATE_SETTINGS: 'update_settings',
+  VIEW_AUDIT_LOGS: 'view_audit_logs',
+} as const
+
+export type Permission = (typeof Permission)[keyof typeof Permission]
 
 // ============================================
 // ROLE-PERMISSION MAPPING
@@ -415,11 +417,11 @@ export function getUserRole(): RoleDefinition | null {
  * Checks if user can perform an action on a resource
  */
 export function canPerformAction(
-  action: Permission,
+  action: string,
   resourceOwnerId?: string
 ): boolean {
   // Check if user has the permission
-  if (!hasPermission(action)) {
+  if (!hasPermission(action as any)) {
     return false;
   }
   
@@ -430,15 +432,15 @@ export function canPerformAction(
       Permission.VIEW_OWN_WORK_DOCS,
     ];
     
-    if (ownOnlyPermissions.includes(action) && !isOwner(resourceOwnerId)) {
+    if (ownOnlyPermissions.includes(action as any) && !isOwner(resourceOwnerId)) {
       // User doesn't own the resource, check if they have "all" permission
-      const allPermissionMap: Record<string, Permission> = {
+      const allPermissionMap: Record<string, string> = {
         [Permission.VIEW_OWN_TIME_LOGS]: Permission.VIEW_ALL_TIME_LOGS,
         [Permission.VIEW_OWN_WORK_DOCS]: Permission.VIEW_ALL_WORK_DOCS,
       };
       
       const allPermission = allPermissionMap[action];
-      return allPermission ? hasPermission(allPermission) : false;
+      return allPermission ? hasPermission(allPermission as any) : false;
     }
   }
   
@@ -467,10 +469,10 @@ export function createAuthMiddleware(requiredPermission: Permission) {
  * Authorization decorator for async functions
  */
 export function requireAuth(
-  ...permissions: Permission[]
+  ...permissions: Array<string>
 ): MethodDecorator {
   return function (
-    target: any,
+    _target: any,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor
   ) {
@@ -479,7 +481,7 @@ export function requireAuth(
     descriptor.value = async function (...args: any[]) {
       // Check permissions
       const hasRequiredPermissions = permissions.every(permission =>
-        hasPermission(permission)
+        hasPermission(permission as any)
       );
       
       if (!hasRequiredPermissions) {

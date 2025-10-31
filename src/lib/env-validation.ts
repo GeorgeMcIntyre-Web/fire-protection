@@ -21,9 +21,11 @@ interface ValidatedEnv {
 }
 
 class EnvironmentValidationError extends Error {
-  constructor(message: string, public missingVars: string[] = []) {
+  missingVars: string[] = []
+  constructor(message: string, missingVars: string[] = []) {
     super(message)
     this.name = 'EnvironmentValidationError'
+    this.missingVars = missingVars
   }
 }
 
