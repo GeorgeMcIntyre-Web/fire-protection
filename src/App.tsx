@@ -13,6 +13,9 @@ import { WorkDocsPage } from './pages/WorkDocsPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
+import NotificationsPage from './pages/NotificationsPage'
+import NotificationPreferencesPage from './pages/NotificationPreferencesPage'
+import EmailAnalyticsPage from './pages/EmailAnalyticsPage'
 import { Layout } from './components/Layout'
 
 function App() {
@@ -40,6 +43,9 @@ function App() {
         <Route path="time-tracking" element={<TimeTrackingPage />} />
         <Route path="work-docs" element={<WorkDocsPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        <Route path="notifications" element={<NotificationsPage />} />
+        <Route path="settings/notifications" element={<NotificationPreferencesPage />} />
+        <Route path="admin/email-analytics" element={<EmailAnalyticsPage />} />
       </Route>
     </Routes>
   )

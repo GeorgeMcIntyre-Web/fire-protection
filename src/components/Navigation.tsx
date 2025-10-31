@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
+import NotificationBell from './NotificationBell'
 import { 
   HomeIcon, 
   FolderIcon, 
@@ -68,6 +69,7 @@ export const Navigation: React.FC = () => {
           </div>
 
           <div className="hidden lg:flex lg:items-center lg:space-x-3 lg:ml-4 flex-shrink-0">
+            <NotificationBell />
             <div className="relative group">
               <button
                 className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-gray-700 rounded-lg"
