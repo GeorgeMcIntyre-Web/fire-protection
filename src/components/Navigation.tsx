@@ -12,15 +12,17 @@ import {
   UserCircleIcon,
   BuildingOfficeIcon,
   DocumentDuplicateIcon,
-  QuestionMarkCircleIcon
+  QuestionMarkCircleIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Documents', href: '/documents', icon: DocumentTextIcon },
-  { name: 'Templates', href: '/templates', icon: DocumentDuplicateIcon },
   { name: 'Projects', href: '/projects', icon: FolderIcon },
   { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon },
+  { name: 'Reports', href: '/reports', icon: ChartBarIcon },
+  { name: 'Documents', href: '/documents', icon: DocumentTextIcon },
+  { name: 'Templates', href: '/templates', icon: DocumentDuplicateIcon },
   { name: 'Clients', href: '/clients', icon: BuildingOfficeIcon },
   { name: 'Time Tracking', href: '/time-tracking', icon: ClockIcon },
   { name: 'Work Docs', href: '/work-docs', icon: DocumentTextIcon },
