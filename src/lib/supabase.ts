@@ -1,23 +1,35 @@
 import { createClient } from '@supabase/supabase-js'
+import { getEnvConfig, logEnvironmentHealth } from './env-validation'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+// Get validated environment configuration
+let envConfig: ReturnType<typeof getEnvConfig>
 
-// Check if we're in demo mode
-const isDemoMode = !supabaseUrl || !supabaseAnonKey || supabaseUrl.includes('your-project-id')
+try {
+  envConfig = getEnvConfig()
+} catch (error) {
+  // Fallback for demo mode if validation fails
+  console.warn('Environment validation failed, using demo mode:', error)
+  envConfig = {
+    supabaseUrl: 'https://demo.supabase.co',
+    supabaseAnonKey: 'demo-key',
+    environment: 'development',
+    isDemoMode: true
+  }
+}
 
-if (isDemoMode) {
-  console.warn('Running in demo mode - Supabase credentials not configured')
+// Log environment health in development
+if (import.meta.env.DEV) {
+  logEnvironmentHealth()
 }
 
 // Create Supabase client
 export const supabase = createClient(
-  isDemoMode ? 'https://demo.supabase.co' : supabaseUrl,
-  isDemoMode ? 'demo-key' : supabaseAnonKey
+  envConfig.isDemoMode ? 'https://demo.supabase.co' : envConfig.supabaseUrl,
+  envConfig.isDemoMode ? 'demo-key' : envConfig.supabaseAnonKey
 )
 
 // Export demo mode flag for components to use
-export const DEMO_MODE = isDemoMode
+export const DEMO_MODE = envConfig.isDemoMode
 
 // Database types
 export interface Database {
