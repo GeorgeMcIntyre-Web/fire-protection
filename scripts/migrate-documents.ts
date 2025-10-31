@@ -16,8 +16,8 @@ import { readFileSync, readdirSync, statSync } from 'fs'
 import { join, extname, basename } from 'path'
 
 // Initialize Supabase client
-const supabaseUrl = process.env.VITE_SUPABASE_URL || ''
-const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY || ''
+const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || ''
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('Error: VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY must be set in .env')
@@ -94,13 +94,13 @@ async function uploadFile(
   filePath: string,
   fileName: string,
   bucket: string = 'company-documents'
-): Promise<string | null> {
+): Promise<{ publicUrl: string; storagePath: string } | null> {
   try {
     const fileBuffer = readFileSync(filePath)
     const sanitizedName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_')
     const storagePath = `${Date.now()}_${sanitizedName}`
 
-    const { error } = await supabase.storage
+    const { data: uploaded, error } = await supabase.storage
       .from(bucket)
       .upload(storagePath, fileBuffer, {
         contentType: getContentType(fileName),
@@ -117,7 +117,7 @@ async function uploadFile(
       .from(bucket)
       .getPublicUrl(storagePath)
 
-    return data.publicUrl
+    return { publicUrl: data.publicUrl, storagePath: uploaded?.path || storagePath }
   } catch (error) {
     console.error(`Failed to upload ${fileName}:`, error)
     return null
@@ -183,7 +183,8 @@ async function createDocumentRecord(
 async function processDirectory(
   dirPath: string,
   userId: string,
-  stats: { processed: number; success: number; failed: number }
+  stats: { processed: number; success: number; failed: number },
+  options: { dryRun: boolean }
 ): Promise<void> {
   try {
     const items = readdirSync(dirPath)
@@ -224,16 +225,16 @@ async function processDirectory(
         console.log(`  Category: ${categoryId || 'Auto-detect'}`)
 
         // Upload file
-        const fileUrl = await uploadFile(fullPath, item)
-        if (!fileUrl) {
+        const uploaded = options.dryRun ? null : await uploadFile(fullPath, item)
+        if (!options.dryRun && !uploaded) {
           stats.failed++
           continue
         }
 
         // Create database record
-        const success = await createDocumentRecord(
+        const success = options.dryRun ? true : await createDocumentRecord(
           parsed.name,
-          fileUrl,
+          uploaded!.publicUrl,
           getContentType(item),
           categoryId,
           parsed.code,
@@ -247,6 +248,17 @@ async function processDirectory(
         } else {
           stats.failed++
           console.log(`  ✗ Failed to create database record`)
+          // Attempt rollback: delete uploaded file
+          if (!options.dryRun && uploaded) {
+            const { error: delErr } = await supabase.storage
+              .from('company-documents')
+              .remove([uploaded.storagePath])
+            if (delErr) {
+              console.warn(`  ⚠️  Failed to rollback uploaded file: ${delErr.message}`)
+            } else {
+              console.log('  ↩︎ Rolled back uploaded file')
+            }
+          }
         }
       }
     }
@@ -267,7 +279,10 @@ async function main() {
     process.exit(1)
   }
 
-  const sourcePath = args[0]
+  const flags = new Set<string>(args.filter(a => a.startsWith('--')))
+  const sourcePath = args.find(a => !a.startsWith('--'))
+
+  const dryRun = flags.has('--dry-run')
 
   console.log('Document Migration Script')
   console.log('=========================\n')
@@ -293,13 +308,16 @@ async function main() {
   }
 
   console.log('Starting migration...\n')
-  await processDirectory(sourcePath, user.id, stats)
+  await processDirectory(sourcePath, user.id, stats, { dryRun })
 
   console.log('\n=========================')
   console.log('Migration Complete!')
   console.log(`Processed: ${stats.processed}`)
   console.log(`Success: ${stats.success}`)
   console.log(`Failed: ${stats.failed}`)
+  if (dryRun) {
+    console.log('(Dry run - no files uploaded, no DB changes)')
+  }
   console.log('=========================\n')
 }
 
