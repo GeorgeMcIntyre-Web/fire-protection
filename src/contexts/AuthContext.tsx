@@ -55,8 +55,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
+    // Get initial session with error handling
+    supabase.auth.getSession().then(async ({ data: { session }, error }) => {
+      // Handle invalid refresh token error
+      if (error && (error.message.includes('Refresh Token') || error.message.includes('Invalid Refresh Token'))) {
+        console.warn('Invalid refresh token, clearing session:', error.message)
+        // Clear invalid session
+        await supabase.auth.signOut()
+        setSession(null)
+        setUser(null)
+        setLoading(false)
+        clearUserContext()
+        clearSessionInfo()
+        return
+      }
+      
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -65,12 +78,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (session?.user) {
         await loadUserContext()
       }
+    }).catch((error) => {
+      // Handle any unexpected errors during session retrieval
+      console.error('Error getting session:', error)
+      setSession(null)
+      setUser(null)
+      setLoading(false)
     })
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      // Handle token refresh errors
+      if (event === 'TOKEN_REFRESHED') {
+        // Token refresh succeeded, update session
+        setSession(session)
+        setUser(session?.user ?? null)
+        return
+      }
+
+      // Handle sign out events (including automatic sign out on token refresh failure)
+      if (event === 'SIGNED_OUT') {
+        setSession(null)
+        setUser(null)
+        clearUserContext()
+        clearSessionInfo()
+        setLoading(false)
+        return
+      }
+
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -93,12 +130,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Load user context for RBAC
         await loadUserContext()
-      }
-
-      if (event === 'SIGNED_OUT') {
-        // Clear user context
-        clearUserContext()
-        clearSessionInfo()
       }
     })
 

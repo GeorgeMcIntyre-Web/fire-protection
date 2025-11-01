@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="flameGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F7931E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFD23F;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1E40AF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3B82F6;stop-opacity:1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Shield Background -->
+  <path d="M64 8 L24 28 L24 68 Q24 88 64 108 Q104 88 104 68 L104 28 Z" 
+        fill="url(#shieldGradient)" 
+        opacity="0.2" 
+        stroke="#3B82F6" 
+        stroke-width="2"/>
+  
+  <!-- Main Flame -->
+  <path d="M64 45 Q58 35 52 42 Q48 48 50 58 Q52 68 58 75 Q64 82 70 75 Q76 68 78 58 Q80 48 76 42 Q70 35 64 45 Z" 
+        fill="url(#flameGradient)" 
+        filter="url(#glow)"/>
+  
+  <!-- Inner Flame Core -->
+  <path d="M64 52 Q60 48 58 52 Q56 56 58 62 Q60 66 64 68 Q68 66 70 62 Q72 56 70 52 Q68 48 64 52 Z" 
+        fill="#FFD23F" 
+        opacity="0.8"/>
+  
+  <!-- Small Accent Flames -->
+  <ellipse cx="52" cy="60" rx="3" ry="8" fill="#FF6B35" opacity="0.7"/>
+  <ellipse cx="76" cy="60" rx="3" ry="8" fill="#FF6B35" opacity="0.7"/>
+  
+  <!-- Sparkles -->
+  <circle cx="48" cy="40" r="2" fill="#FFD23F" opacity="0.8"/>
+  <circle cx="80" cy="44" r="1.5" fill="#FFD23F" opacity="0.8"/>
+  <circle cx="56" cy="72" r="1.5" fill="#FFD23F" opacity="0.8"/>
+  <circle cx="72" cy="74" r="1.5" fill="#FFD23F" opacity="0.8"/>
+</svg>
+
+

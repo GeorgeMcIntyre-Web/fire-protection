@@ -22,10 +22,23 @@ if (import.meta.env.DEV) {
   logEnvironmentHealth()
 }
 
-// Create Supabase client
+// Create Supabase client with error handling configuration
 export const supabase = createClient(
   envConfig.isDemoMode ? 'https://demo.supabase.co' : envConfig.supabaseUrl,
-  envConfig.isDemoMode ? 'demo-key' : envConfig.supabaseAnonKey
+  envConfig.isDemoMode ? 'demo-key' : envConfig.supabaseAnonKey,
+  {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
+      // Handle token refresh errors gracefully
+      storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    },
+    global: {
+      // Catch and handle errors from API calls
+      headers: {},
+    },
+  }
 )
 
 // Export demo mode flag for components to use

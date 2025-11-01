@@ -22,7 +22,7 @@ export const PrivacyPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-3">1. Introduction</h2>
               <p className="text-gray-300 leading-relaxed">
-                Fire Protection PM ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy
+                FireGuard Pro ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy
                 explains how we collect, use, disclose, and safeguard your information when you use our service.
               </p>
             </section>

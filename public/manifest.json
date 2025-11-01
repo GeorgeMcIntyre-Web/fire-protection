@@ -1,16 +1,22 @@
 {
-  "name": "Fire Protection Tracker",
-  "short_name": "FP Tracker",
+  "name": "FireGuard Pro",
+  "short_name": "FireGuard",
   "description": "Professional project management and document tracking for fire protection services",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#111827",
-  "theme_color": "#1f2937",
+  "theme_color": "#3B82F6",
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/vite.svg",
-      "sizes": "192x192",
+      "src": "/fireguard-icon.svg",
+      "sizes": "128x128",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "128x128",
       "type": "image/svg+xml",
       "purpose": "any maskable"
     }

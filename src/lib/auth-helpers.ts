@@ -515,15 +515,49 @@ export async function refreshAuthToken(): Promise<{
   error?: string;
 }> {
   try {
-    const { error } = await supabase.auth.refreshSession();
+    const { data, error } = await supabase.auth.refreshSession();
     
     if (error) {
+      // Check if it's an invalid refresh token error
+      if (error.message.includes('Refresh Token') || error.message.includes('Invalid Refresh Token')) {
+        // Clear invalid session
+        await supabase.auth.signOut();
+        clearSessionInfo();
+        return { 
+          success: false, 
+          error: 'Your session has expired. Please sign in again.' 
+        };
+      }
+      
       return { success: false, error: error.message };
+    }
+    
+    // Session refreshed successfully
+    if (data.session) {
+      // Update session info
+      const sessionInfo = getSessionInfo();
+      if (sessionInfo) {
+        sessionInfo.lastActivity = Date.now();
+        setSessionInfo(sessionInfo);
+      }
     }
     
     return { success: true };
   } catch (error) {
-    return { success: false, error: 'Failed to refresh token' };
+    // Handle unexpected errors
+    const errorMessage = error instanceof Error ? error.message : 'Failed to refresh token';
+    
+    // If it's a refresh token error, clear the session
+    if (errorMessage.includes('Refresh Token') || errorMessage.includes('Invalid Refresh Token')) {
+      await supabase.auth.signOut();
+      clearSessionInfo();
+      return { 
+        success: false, 
+        error: 'Your session has expired. Please sign in again.' 
+      };
+    }
+    
+    return { success: false, error: errorMessage };
   }
 }
 
@@ -700,7 +734,7 @@ export async function secureSignIn(
     // For now, this is client-side only
     
     // Sign in
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });

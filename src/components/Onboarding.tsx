@@ -24,7 +24,7 @@ interface OnboardingStep {
 
 const steps: OnboardingStep[] = [
   {
-    title: 'Welcome to Fire Protection PM',
+    title: 'Welcome to FireGuard Pro',
     description: 'Your all-in-one project management solution for fire protection professionals. Let\'s get you started!',
     icon: CheckCircleIcon,
     tips: [

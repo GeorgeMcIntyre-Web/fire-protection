@@ -39,11 +39,13 @@ export const Navigation: React.FC = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <div className="h-10 w-10 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-sm">FP</span>
-              </div>
+              <img 
+                src="/fireguard-icon.svg" 
+                alt="FireGuard Pro" 
+                className="h-10 w-10"
+              />
               <span className="ml-3 text-xl font-bold text-white whitespace-nowrap">
-                Fire Protection
+                FireGuard Pro
               </span>
             </div>
             <div className="hidden lg:ml-8 lg:flex lg:space-x-1">

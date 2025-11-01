@@ -22,7 +22,7 @@ export const TermsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-3">1. Agreement to Terms</h2>
               <p className="text-gray-300 leading-relaxed">
-                By accessing and using Fire Protection PM ("the Service"), you agree to be bound by these Terms of Service.
+                By accessing and using FireGuard Pro ("the Service"), you agree to be bound by these Terms of Service.
                 If you do not agree to these terms, please do not use the Service.
               </p>
             </section>
@@ -30,7 +30,7 @@ export const TermsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-3">2. Description of Service</h2>
               <p className="text-gray-300 leading-relaxed">
-                Fire Protection PM provides project management tools specifically designed for fire protection professionals,
+                FireGuard Pro provides project management tools specifically designed for fire protection professionals,
                 including but not limited to project tracking, task management, document storage, time tracking, and budget monitoring.
               </p>
             </section>
@@ -103,7 +103,7 @@ export const TermsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-3">8. Intellectual Property</h2>
               <p className="text-gray-300 leading-relaxed">
-                The Service and its original content, features, and functionality are owned by Fire Protection PM and are
+                The Service and its original content, features, and functionality are owned by FireGuard Pro and are
                 protected by international copyright, trademark, patent, trade secret, and other intellectual property laws.
               </p>
             </section>
@@ -111,7 +111,7 @@ export const TermsPage: React.FC = () => {
             <section>
               <h2 className="text-2xl font-semibold text-white mb-3">9. Limitation of Liability</h2>
               <p className="text-gray-300 leading-relaxed">
-                To the maximum extent permitted by law, Fire Protection PM shall not be liable for any indirect, incidental,
+                To the maximum extent permitted by law, FireGuard Pro shall not be liable for any indirect, incidental,
                 special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly
                 or indirectly, or any loss of data, use, goodwill, or other intangible losses.
               </p>
@@ -152,7 +152,7 @@ export const TermsPage: React.FC = () => {
 
             <div className="mt-8 p-4 bg-blue-900/20 border border-blue-700 rounded-lg">
               <p className="text-sm text-gray-300">
-                <strong className="text-white">Note:</strong> By using Fire Protection PM, you acknowledge that you have read,
+                <strong className="text-white">Note:</strong> By using FireGuard Pro, you acknowledge that you have read,
                 understood, and agree to be bound by these Terms of Service.
               </p>
             </div>
