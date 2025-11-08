@@ -6,11 +6,17 @@
 
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeftIcon, DocumentArrowDownIcon, PencilIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, DocumentArrowDownIcon, PencilIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
 import { useJob } from '../../lib/fireconsult-hooks'
 import { updateFireConsultJob, createDesignRequest } from '../../lib/fireconsult'
 import { generateDesignRequestPDF } from '../../lib/design-request-pdf'
 import { useFireConsult } from '../../contexts/FireConsultContext'
+import { 
+  generateQuoteFromJob, 
+  formatCurrency, 
+  generateQuoteNumber,
+  type QuoteResult 
+} from '../../lib/fireconsult-quotes'
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -18,6 +24,9 @@ export default function JobDetailPage() {
   const { job, loading, error } = useJob(id || null)
   const { refreshAll } = useFireConsult()
   const [generatingPDF, setGeneratingPDF] = useState(false)
+  const [quoteType, setQuoteType] = useState<'design_only' | 'full_installation'>('design_only')
+  const [quote, setQuote] = useState<QuoteResult | null>(null)
+  const [customMargin, setCustomMargin] = useState<number | undefined>(undefined)
 
   const handleGeneratePDF = () => {
     if (!job) return
@@ -54,6 +63,27 @@ export default function JobDetailPage() {
     } catch (err) {
       console.error('Error creating design request:', err)
       alert('Failed to create design request')
+    }
+  }
+
+  const handleGenerateQuote = () => {
+    if (!job) return
+    
+    try {
+      const result = generateQuoteFromJob(
+        {
+          estimated_sprinkler_count: job.estimated_sprinkler_count,
+          commodity_class: job.commodity_class,
+          requires_tank: job.requires_tank,
+          requires_pump: job.requires_pump
+        },
+        quoteType,
+        customMargin
+      )
+      setQuote(result)
+    } catch (err) {
+      console.error('Error generating quote:', err)
+      alert(err instanceof Error ? err.message : 'Failed to generate quote')
     }
   }
 
@@ -271,6 +301,152 @@ export default function JobDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Quote Generator */}
+      <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold">Generate Quote</h2>
+            <CurrencyDollarIcon className="h-6 w-6 text-green-600" />
+          </div>
+        </div>
+        <div className="px-6 py-4 space-y-4">
+          {/* Quote Type Selection */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Quote Type</label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="design_only"
+                  checked={quoteType === 'design_only'}
+                  onChange={(e) => setQuoteType(e.target.value as 'design_only' | 'full_installation')}
+                  className="mr-2"
+                />
+                <span className="text-sm">Design Only (50% margin)</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="full_installation"
+                  checked={quoteType === 'full_installation'}
+                  onChange={(e) => setQuoteType(e.target.value as 'design_only' | 'full_installation')}
+                  className="mr-2"
+                />
+                <span className="text-sm">Full Installation (25% margin)</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Custom Margin (Optional) */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Custom Margin % (Optional - leave blank for default)
+            </label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              value={customMargin || ''}
+              onChange={(e) => setCustomMargin(e.target.value ? parseFloat(e.target.value) : undefined)}
+              placeholder={quoteType === 'design_only' ? '50 (default)' : '25 (default)'}
+              className="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500 sm:text-sm"
+            />
+          </div>
+
+          {/* Generate Button */}
+          <button
+            onClick={handleGenerateQuote}
+            disabled={!job.estimated_sprinkler_count || job.estimated_sprinkler_count === 0}
+            className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <CurrencyDollarIcon className="h-5 w-5 mr-2" />
+            Generate Quote
+          </button>
+
+          {/* Quote Results */}
+          {quote && (
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-green-900 mb-4">
+                Quote: {generateQuoteNumber(job.job_number)}
+              </h3>
+              
+              {/* Cost Breakdown */}
+              <div className="mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Cost Breakdown</h4>
+                <div className="space-y-1 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Engineering:</span>
+                    <span className="font-medium">{formatCurrency(quote.breakdown.engineeringCost)}</span>
+                  </div>
+                  {quote.breakdown.fabricationCost > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Fabrication:</span>
+                      <span className="font-medium">{formatCurrency(quote.breakdown.fabricationCost)}</span>
+                    </div>
+                  )}
+                  {quote.breakdown.installationLabour > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Installation Labour:</span>
+                      <span className="font-medium">{formatCurrency(quote.breakdown.installationLabour)}</span>
+                    </div>
+                  )}
+                  {quote.breakdown.hardwareCost > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Hardware:</span>
+                      <span className="font-medium">{formatCurrency(quote.breakdown.hardwareCost)}</span>
+                    </div>
+                  )}
+                  {quote.breakdown.waterSupplyCost > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Water Supply (Pumps & Tanks):</span>
+                      <span className="font-medium">{formatCurrency(quote.breakdown.waterSupplyCost)}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between pt-2 border-t border-green-300">
+                    <span className="text-gray-700 font-medium">Subtotal (Cost):</span>
+                    <span className="font-semibold">{formatCurrency(quote.breakdown.subtotalCost)}</span>
+                  </div>
+                  <div className="flex justify-between text-green-700">
+                    <span className="font-medium">Gross Profit ({quote.grossMarginPercent.toFixed(1)}%):</span>
+                    <span className="font-semibold">{formatCurrency(quote.grossProfit)}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Final Pricing */}
+              <div className="pt-4 border-t border-green-300">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Quote (Excl. VAT):</span>
+                  <span className="text-xl font-bold text-gray-900">{formatCurrency(quote.finalQuoteExVat)}</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">VAT (15%):</span>
+                  <span className="text-lg font-semibold text-gray-700">{formatCurrency(quote.vatAmount)}</span>
+                </div>
+                <div className="flex justify-between items-center pt-2 border-t-2 border-green-400">
+                  <span className="text-base font-semibold text-gray-900">Total (Incl. VAT):</span>
+                  <span className="text-2xl font-bold text-green-700">{formatCurrency(quote.finalQuoteIncVat)}</span>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="mt-4 pt-4 border-t border-green-300">
+                <p className="text-xs text-gray-600">
+                  Quote valid for 30 days. Based on ASIB Rule Book 2024 parameters.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {!job.estimated_sprinkler_count && (
+            <p className="text-sm text-yellow-600">
+              ⚠️ Sprinkler count required to generate quote. Please update job details first.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   )
 }
