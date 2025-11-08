@@ -27,6 +27,8 @@ function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/terms" element={<TermsPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
+      {/* Public Routes */}
+      <Route path="/quote/:token" element={<QuoteViewPage />} />
       <Route
         path="/"
         element={

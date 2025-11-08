@@ -19,7 +19,7 @@ import {
   mapCommodityToHazard
 } from '../../lib/fireconsult-quotes'
 import { generateQuotePDF } from '../../lib/quote-pdf'
-import { createQuote } from '../../lib/fireconsult'
+import { createQuote, updateQuote } from '../../lib/fireconsult'
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -30,6 +30,8 @@ export default function JobDetailPage() {
   const [quoteType, setQuoteType] = useState<'design_only' | 'full_installation'>('design_only')
   const [quote, setQuote] = useState<QuoteResult | null>(null)
   const [customMargin, setCustomMargin] = useState<number | undefined>(undefined)
+  const [sendingEmail, setSendingEmail] = useState(false)
+  const [quoteToken, setQuoteToken] = useState<string | null>(null)
 
   const handleGeneratePDF = () => {
     if (!job) return
