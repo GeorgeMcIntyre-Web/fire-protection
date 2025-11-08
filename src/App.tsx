@@ -14,6 +14,7 @@ import { ReportsPage } from './pages/ReportsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { Layout } from './components/Layout'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import FireConsultDashboardPage from './pages/FireConsult/DashboardPage'
 import CreateJobPage from './pages/FireConsult/CreateJobPage'
 import JobDetailPage from './pages/FireConsult/JobDetailPage'
@@ -22,7 +23,8 @@ import QuotesPage from './pages/FireConsult/QuotesPage'
 
 function App() {
   return (
-    <Routes>
+    <ErrorBoundary>
+      <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/terms" element={<TermsPage />} />
@@ -55,6 +57,7 @@ function App() {
         <Route path="fireconsult/quotes" element={<QuotesPage />} />
       </Route>
     </Routes>
+    </ErrorBoundary>
   )
 }
 

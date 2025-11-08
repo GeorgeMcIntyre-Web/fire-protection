@@ -581,7 +581,7 @@ export default function JobDetailPage() {
                 </p>
                 
                 {/* Action Buttons */}
-                <div className="flex space-x-3">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
                   <button
                     onClick={handleSaveQuote}
                     className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-medium text-green-700 bg-white hover:bg-green-50"
@@ -595,7 +595,40 @@ export default function JobDetailPage() {
                     <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
                     Generate PDF
                   </button>
+                  <button
+                    onClick={handleSendQuoteEmail}
+                    disabled={sendingEmail || !job.contact_email}
+                    className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <EnvelopeIcon className="h-5 w-5 mr-2" />
+                    {sendingEmail ? 'Sending...' : 'Email to Client'}
+                  </button>
                 </div>
+
+                {quoteToken && (
+                  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-sm text-blue-800">
+                      <strong>Quote Link:</strong>{' '}
+                      <a 
+                        href={generateQuoteUrl(quoteToken)} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="underline break-all"
+                      >
+                        {generateQuoteUrl(quoteToken)}
+                      </a>
+                    </p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Share this secure link with your client to view and respond to the quote.
+                    </p>
+                  </div>
+                )}
+
+                {!job.contact_email && (
+                  <p className="mt-2 text-xs text-yellow-600">
+                    ⚠️ Client email not set. Update job details to enable email sending.
+                  </p>
+                )}
               </div>
             </div>
           )}
