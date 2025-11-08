@@ -14,6 +14,10 @@ import { ReportsPage } from './pages/ReportsPage'
 import { TermsPage } from './pages/TermsPage'
 import { PrivacyPage } from './pages/PrivacyPage'
 import { Layout } from './components/Layout'
+import FireConsultDashboardPage from './pages/FireConsult/DashboardPage'
+import CreateJobPage from './pages/FireConsult/CreateJobPage'
+import JobDetailPage from './pages/FireConsult/JobDetailPage'
+import EngineersPage from './pages/FireConsult/EngineersPage'
 
 function App() {
   return (
@@ -40,6 +44,11 @@ function App() {
         <Route path="time-tracking" element={<TimeTrackingPage />} />
         <Route path="work-docs" element={<WorkDocsPage />} />
         <Route path="reports" element={<ReportsPage />} />
+        {/* Fire Consultancy Routes */}
+        <Route path="fireconsult" element={<FireConsultDashboardPage />} />
+        <Route path="fireconsult/jobs/new" element={<CreateJobPage />} />
+        <Route path="fireconsult/jobs/:id" element={<JobDetailPage />} />
+        <Route path="fireconsult/engineers" element={<EngineersPage />} />
       </Route>
     </Routes>
   )

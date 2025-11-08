@@ -13,7 +13,8 @@ import {
   BuildingOfficeIcon,
   DocumentDuplicateIcon,
   QuestionMarkCircleIcon,
-  ChartBarIcon
+  ChartBarIcon,
+  FireIcon
 } from '@heroicons/react/24/outline'
 
 const navigation = [
@@ -21,6 +22,7 @@ const navigation = [
   { name: 'Projects', href: '/projects', icon: FolderIcon },
   { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon },
   { name: 'Reports', href: '/reports', icon: ChartBarIcon },
+  { name: 'Fire Consultancy', href: '/fireconsult', icon: FireIcon },
   { name: 'Documents', href: '/documents', icon: DocumentTextIcon },
   { name: 'Templates', href: '/templates', icon: DocumentDuplicateIcon },
   { name: 'Clients', href: '/clients', icon: BuildingOfficeIcon },
