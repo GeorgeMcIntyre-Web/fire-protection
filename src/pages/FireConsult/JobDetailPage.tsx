@@ -6,7 +6,7 @@
 
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeftIcon, DocumentArrowDownIcon, PencilIcon, CurrencyDollarIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, DocumentArrowDownIcon, PencilIcon, CurrencyDollarIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import { useJob } from '../../lib/fireconsult-hooks'
 import { updateFireConsultJob, createDesignRequest } from '../../lib/fireconsult'
 import { generateDesignRequestPDF } from '../../lib/design-request-pdf'
@@ -20,6 +20,8 @@ import {
 } from '../../lib/fireconsult-quotes'
 import { generateQuotePDF } from '../../lib/quote-pdf'
 import { createQuote, updateQuote } from '../../lib/fireconsult'
+import { generateQuoteToken, generateQuoteUrl } from '../../lib/quote-tokens'
+import { sendEmail, quoteEmailTemplate } from '../../lib/email'
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -139,6 +141,91 @@ export default function JobDetailPage() {
       consultantName: 'Fire Consultant',
       consultantCompany: 'Fire Protection Services'
     })
+  }
+
+  const handleSendQuoteEmail = async () => {
+    if (!quote || !job) return
+
+    if (!job.contact_email) {
+      alert('Client email not set. Please update job details first.')
+      return
+    }
+
+    try {
+      setSendingEmail(true)
+
+      // First, save quote if not already saved
+      let savedQuote
+      try {
+        const quoteNumber = generateQuoteNumber(job.job_number)
+        const hazardCategory = mapCommodityToHazard(job.commodity_class)
+        
+        const validUntil = new Date()
+        validUntil.setDate(validUntil.getDate() + 30)
+        
+        savedQuote = await createQuote({
+          job_id: job.id,
+          quote_type: quoteType,
+          sprinkler_count: job.estimated_sprinkler_count || 0,
+          hazard_category: hazardCategory,
+          custom_margin_percent: customMargin || null,
+          cost_breakdown: quote.breakdown,
+          subtotal_cost: quote.breakdown.subtotalCost,
+          gross_profit: quote.grossProfit,
+          gross_margin_percent: quote.grossMarginPercent,
+          quote_ex_vat: quote.finalQuoteExVat,
+          vat_amount: quote.vatAmount,
+          quote_inc_vat: quote.finalQuoteIncVat,
+          status: 'draft',
+          valid_until: validUntil.toISOString().split('T')[0],
+          created_by: job.consultant_id
+        })
+      } catch (err) {
+        // Quote might already exist - that's okay, we'll generate token anyway
+        console.warn('Quote may already exist:', err)
+      }
+
+      // Generate secure token for the quote
+      // If quote wasn't saved, we need to save it first or get existing
+      if (!savedQuote) {
+        // Try to get existing quote for this job
+        const { getQuotes } = await import('../../lib/fireconsult')
+        const existingQuotes = await getQuotes(job.id)
+        savedQuote = existingQuotes[0] // Get most recent
+      }
+
+      if (!savedQuote) {
+        alert('Please save the quote first before sending email')
+        return
+      }
+
+      const token = await generateQuoteToken(savedQuote.id, 30)
+      const quoteUrl = generateQuoteUrl(token)
+      
+      // Send email
+      const template = quoteEmailTemplate(
+        job.contact_person || job.site_name,
+        job.contact_email,
+        quoteUrl, // Secure link instead of PDF
+        job.site_name,
+        savedQuote.quote_number,
+        quote.finalQuoteIncVat
+      )
+
+      await sendEmail(template)
+
+      // Update quote status
+      await updateQuote(savedQuote.id, { status: 'sent' })
+
+      setQuoteToken(token)
+      alert('Quote email sent successfully! Client can view and respond via the secure link.')
+      await refreshAll()
+    } catch (err) {
+      console.error('Error sending quote email:', err)
+      alert('Failed to send quote email. Please try again.')
+    } finally {
+      setSendingEmail(false)
+    }
   }
 
   if (loading) {
