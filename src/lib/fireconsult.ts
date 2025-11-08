@@ -25,7 +25,10 @@ import type {
   JobWithRelations,
   FireConsultDashboardStats,
   AccreditationAlert,
-  PricingEstimate
+  PricingEstimate,
+  Quote,
+  QuoteInsert,
+  QuoteUpdate
 } from './fireconsult-types'
 import { estimateWaterSupply, estimateDesignParameters } from './water-supply-estimator'
 
@@ -661,5 +664,75 @@ export function calculatePricing(
     engineerPercentage,
     consultantPercentage: consultantPct * 100
   }
+}
+
+// ============================================
+// QUOTES
+// ============================================
+
+export async function getQuotes(jobId?: string): Promise<Quote[]> {
+  let query = supabase
+    .from('quotes')
+    .select('*')
+    .order('created_at', { ascending: false })
+  
+  if (jobId) {
+    query = query.eq('job_id', jobId)
+  }
+  
+  const { data, error } = await query
+  
+  if (error) throw error
+  return data || []
+}
+
+export async function getQuote(id: string): Promise<Quote | null> {
+  const { data, error } = await supabase
+    .from('quotes')
+    .select('*')
+    .eq('id', id)
+    .single()
+  
+  if (error) {
+    if (error.code === 'PGRST116') return null
+    throw error
+  }
+  
+  return data
+}
+
+export async function createQuote(quote: QuoteInsert): Promise<Quote> {
+  const { data, error } = await supabase
+    .from('quotes')
+    .insert(quote)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function updateQuote(
+  id: string,
+  updates: QuoteUpdate
+): Promise<Quote> {
+  const { data, error } = await supabase
+    .from('quotes')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single()
+  
+  if (error) throw error
+  return data
+}
+
+export async function deleteQuote(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('quotes')
+    .delete()
+    .eq('id', id)
+  
+  if (error) throw error
 }
 

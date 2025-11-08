@@ -15,8 +15,11 @@ import {
   generateQuoteFromJob, 
   formatCurrency, 
   generateQuoteNumber,
-  type QuoteResult 
+  type QuoteResult,
+  mapCommodityToHazard
 } from '../../lib/fireconsult-quotes'
+import { generateQuotePDF } from '../../lib/quote-pdf'
+import { createQuote } from '../../lib/fireconsult'
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>()
@@ -85,6 +88,55 @@ export default function JobDetailPage() {
       console.error('Error generating quote:', err)
       alert(err instanceof Error ? err.message : 'Failed to generate quote')
     }
+  }
+
+  const handleSaveQuote = async () => {
+    if (!quote || !job) return
+    
+    try {
+      const quoteNumber = generateQuoteNumber(job.job_number)
+      const hazardCategory = mapCommodityToHazard(job.commodity_class)
+      
+      const validUntil = new Date()
+      validUntil.setDate(validUntil.getDate() + 30)
+      
+      await createQuote({
+        job_id: job.id,
+        quote_type: quoteType,
+        sprinkler_count: job.estimated_sprinkler_count || 0,
+        hazard_category: hazardCategory,
+        custom_margin_percent: customMargin || null,
+        cost_breakdown: quote.breakdown,
+        subtotal_cost: quote.breakdown.subtotalCost,
+        gross_profit: quote.grossProfit,
+        gross_margin_percent: quote.grossMarginPercent,
+        quote_ex_vat: quote.finalQuoteExVat,
+        vat_amount: quote.vatAmount,
+        quote_inc_vat: quote.finalQuoteIncVat,
+        status: 'draft',
+        valid_until: validUntil.toISOString().split('T')[0],
+        created_by: job.consultant_id
+      })
+      
+      alert('Quote saved successfully!')
+      await refreshAll()
+    } catch (err) {
+      console.error('Error saving quote:', err)
+      alert('Failed to save quote')
+    }
+  }
+
+  const handleGenerateQuotePDF = () => {
+    if (!quote || !job) return
+    
+    const quoteNumber = generateQuoteNumber(job.job_number)
+    generateQuotePDF({
+      quote,
+      job,
+      quoteNumber,
+      consultantName: 'Fire Consultant',
+      consultantCompany: 'Fire Protection Services'
+    })
   }
 
   if (loading) {
@@ -356,14 +408,16 @@ export default function JobDetailPage() {
           </div>
 
           {/* Generate Button */}
-          <button
-            onClick={handleGenerateQuote}
-            disabled={!job.estimated_sprinkler_count || job.estimated_sprinkler_count === 0}
-            className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <CurrencyDollarIcon className="h-5 w-5 mr-2" />
-            Generate Quote
-          </button>
+          <div className="flex space-x-3">
+            <button
+              onClick={handleGenerateQuote}
+              disabled={!job.estimated_sprinkler_count || job.estimated_sprinkler_count === 0}
+              className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <CurrencyDollarIcon className="h-5 w-5 mr-2" />
+              Generate Quote
+            </button>
+          </div>
 
           {/* Quote Results */}
           {quote && (
@@ -433,9 +487,26 @@ export default function JobDetailPage() {
 
               {/* Notes */}
               <div className="mt-4 pt-4 border-t border-green-300">
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 mb-3">
                   Quote valid for 30 days. Based on ASIB Rule Book 2024 parameters.
                 </p>
+                
+                {/* Action Buttons */}
+                <div className="flex space-x-3">
+                  <button
+                    onClick={handleSaveQuote}
+                    className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-green-600 rounded-md shadow-sm text-sm font-medium text-green-700 bg-white hover:bg-green-50"
+                  >
+                    Save Quote
+                  </button>
+                  <button
+                    onClick={handleGenerateQuotePDF}
+                    className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700"
+                  >
+                    <DocumentArrowDownIcon className="h-5 w-5 mr-2" />
+                    Generate PDF
+                  </button>
+                </div>
               </div>
             </div>
           )}

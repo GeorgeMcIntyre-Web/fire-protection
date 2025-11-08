@@ -319,6 +319,43 @@ export interface PricingEstimate {
   consultantPercentage: number
 }
 
+export interface Quote {
+  id: string
+  job_id: string
+  quote_number: string
+  quote_type: 'design_only' | 'full_installation'
+  sprinkler_count: number
+  hazard_category: string
+  custom_margin_percent: number | null
+  cost_breakdown: {
+    engineeringCost: number
+    fabricationCost: number
+    installationLabour: number
+    hardwareCost: number
+    waterSupplyCost: number
+    subtotalCost: number
+  }
+  subtotal_cost: number
+  gross_profit: number
+  gross_margin_percent: number
+  quote_ex_vat: number
+  vat_amount: number
+  quote_inc_vat: number
+  status: 'draft' | 'sent' | 'accepted' | 'rejected' | 'expired' | 'converted'
+  valid_until: string
+  pdf_url: string | null
+  notes: string | null
+  rejection_reason: string | null
+  accepted_at: string | null
+  rejected_at: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+}
+
+export type QuoteInsert = Omit<Quote, 'id' | 'created_at' | 'updated_at' | 'quote_number'>
+export type QuoteUpdate = Partial<Omit<Quote, 'id' | 'job_id' | 'created_by' | 'created_at' | 'updated_at' | 'quote_number'>>
+
 // ============================================
 // DASHBOARD TYPES
 // ============================================
