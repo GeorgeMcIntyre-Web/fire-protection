@@ -18,6 +18,7 @@ import FireConsultDashboardPage from './pages/FireConsult/DashboardPage'
 import CreateJobPage from './pages/FireConsult/CreateJobPage'
 import JobDetailPage from './pages/FireConsult/JobDetailPage'
 import EngineersPage from './pages/FireConsult/EngineersPage'
+import QuotesPage from './pages/FireConsult/QuotesPage'
 
 function App() {
   return (
