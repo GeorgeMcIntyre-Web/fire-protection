@@ -49,6 +49,7 @@ function App() {
         <Route path="fireconsult/jobs/new" element={<CreateJobPage />} />
         <Route path="fireconsult/jobs/:id" element={<JobDetailPage />} />
         <Route path="fireconsult/engineers" element={<EngineersPage />} />
+        <Route path="fireconsult/quotes" element={<QuotesPage />} />
       </Route>
     </Routes>
   )
