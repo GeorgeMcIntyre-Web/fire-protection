@@ -133,7 +133,7 @@ export function requiresPump(
  */
 export function recommendPumpType(
   flowLpm: number,
-  pressureBar: number
+  _pressureBar: number
 ): PumpType {
   // For large systems (>2000 L/min), diesel is more reliable
   if (flowLpm > 2000) {
@@ -301,7 +301,7 @@ export function estimateDesignParameters(
   commodityClass?: CommodityClass,
   storageMethod?: StorageMethod,
   storageHeightM?: number,
-  ceilingHeightM?: number
+  _ceilingHeightM?: number
 ): {
   densityMmPerMin: number
   designAreaM2: number

@@ -14,8 +14,8 @@ import {
   ClockIcon,
   EyeIcon
 } from '@heroicons/react/24/outline'
-import { getQuotes, updateQuote, type Quote } from '../../lib/fireconsult'
-import { generateQuotePDF } from '../../lib/quote-pdf'
+import { getQuotes, updateQuote } from '../../lib/fireconsult'
+import type { Quote } from '../../lib/fireconsult-types'
 import { sendEmail, quoteEmailTemplate } from '../../lib/email'
 import { formatCurrency } from '../../lib/fireconsult-quotes'
 

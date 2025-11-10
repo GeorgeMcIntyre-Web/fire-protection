@@ -176,11 +176,11 @@ export function exportJobsToCSV(jobs: FireConsultJob[]): void {
   exportToCSV(jobs, 'fire-consultancy-jobs', [
     { key: 'job_number', label: 'Job Number' },
     { key: 'site_name', label: 'Site Name' },
-    { key: 'client_name', label: 'Client Name' },
+    { key: 'contact_person', label: 'Contact Person' },
     { key: 'status', label: 'Status' },
     { key: 'commodity_class', label: 'Commodity Class' },
     { key: 'estimated_sprinkler_count', label: 'Sprinkler Count' },
-    { key: 'estimated_design_fee', label: 'Design Fee' },
+    { key: 'total_design_fee', label: 'Design Fee' },
     { key: 'created_at', label: 'Created Date' }
   ])
 }

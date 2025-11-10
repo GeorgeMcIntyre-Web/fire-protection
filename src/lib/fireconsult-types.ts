@@ -282,7 +282,19 @@ export type AccreditationUpdate = Partial<Omit<Accreditation, 'id' | 'engineer_i
 export type FireConsultJobInsert = Omit<FireConsultJob, 'id' | 'job_number' | 'created_at' | 'updated_at' | 'design_request_sent_at' | 'design_completed_at'>
 export type FireConsultJobUpdate = Partial<Omit<FireConsultJob, 'id' | 'job_number' | 'consultant_id' | 'created_at' | 'updated_at'>>
 
-export type DesignRequestInsert = Omit<DesignRequest, 'id' | 'created_at' | 'updated_at' | 'request_sent_at' | 'acknowledged_at' | 'completed_at'>
+export type DesignRequestInsert = Omit<DesignRequest, 'id' | 'created_at' | 'updated_at' | 'request_sent_at' | 'acknowledged_at' | 'completed_at'> & {
+  request_pdf_url?: string | null
+  signed_fire_plan_url?: string | null
+  hydraulic_calc_file_url?: string | null
+  engineer_notes?: string | null
+  consultant_notes?: string | null
+  final_density_mm_per_min?: number | null
+  final_design_area_m2?: number | null
+  final_sprinkler_count?: number | null
+  final_flow_required_lpm?: number | null
+  final_tank_size_m3?: number | null
+  final_pump_specs?: string | null
+}
 export type DesignRequestUpdate = Partial<Omit<DesignRequest, 'id' | 'job_id' | 'engineer_id' | 'created_at' | 'updated_at'>>
 
 export type FireSystemInsert = Omit<FireSystem, 'id' | 'created_at' | 'updated_at'>
@@ -353,7 +365,13 @@ export interface Quote {
   updated_at: string
 }
 
-export type QuoteInsert = Omit<Quote, 'id' | 'created_at' | 'updated_at' | 'quote_number'>
+export type QuoteInsert = Omit<Quote, 'id' | 'created_at' | 'updated_at' | 'quote_number'> & {
+  pdf_url?: string | null
+  notes?: string | null
+  rejection_reason?: string | null
+  accepted_at?: string | null
+  rejected_at?: string | null
+}
 export type QuoteUpdate = Partial<Omit<Quote, 'id' | 'job_id' | 'created_by' | 'created_at' | 'updated_at' | 'quote_number'>>
 
 // ============================================

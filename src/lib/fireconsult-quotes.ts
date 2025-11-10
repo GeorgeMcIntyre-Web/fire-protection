@@ -7,13 +7,15 @@
 // 1. Types and Interfaces
 // =========================================
 
-export enum HazardCategory {
-  ORDINARY_HAZARD = "OH",     // Offices, hotels (ASIB Section 1001)
-  HIGH_HAZARD_1 = "HH1",      // Low combustible storage
-  HIGH_HAZARD_2 = "HH2",      // Medium combustible storage
-  HIGH_HAZARD_3 = "HH3",      // High combustible storage
-  HIGH_HAZARD_4 = "HH4",      // Special hazards (Aerosols, Tyres - ASIB 1058, 1102)
-}
+export const HazardCategory = {
+  ORDINARY_HAZARD: "OH",     // Offices, hotels (ASIB Section 1001)
+  HIGH_HAZARD_1: "HH1",      // Low combustible storage
+  HIGH_HAZARD_2: "HH2",      // Medium combustible storage
+  HIGH_HAZARD_3: "HH3",      // High combustible storage
+  HIGH_HAZARD_4: "HH4",      // Special hazards (Aerosols, Tyres - ASIB 1058, 1102)
+} as const
+
+export type HazardCategory = typeof HazardCategory[keyof typeof HazardCategory]
 
 export interface QuoteInput {
   sprinklerHeadCount: number

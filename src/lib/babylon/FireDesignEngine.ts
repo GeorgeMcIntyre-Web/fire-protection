@@ -98,14 +98,9 @@ export class FireDesignEngine extends EventEmitter {
   }
 
   private createGrid(): void {
-    const gridMaterial = new BABYLON.GridMaterial('grid', this.scene)
-    gridMaterial.majorUnitFrequency = 5
-    gridMaterial.minorUnitVisibility = 0.45
-    gridMaterial.gridRatio = 1
-    gridMaterial.backFaceCulling = false
-    gridMaterial.mainColor = new BABYLON.Color3(1, 1, 1)
-    gridMaterial.lineColor = new BABYLON.Color3(0.8, 0.8, 0.8)
-    gridMaterial.opacity = 0.98
+    const gridMaterial = new BABYLON.StandardMaterial('grid', this.scene)
+    gridMaterial.diffuseColor = new BABYLON.Color3(0.95, 0.95, 0.95)
+    gridMaterial.alpha = 0.98
 
     this.ground = BABYLON.MeshBuilder.CreateGround(
       'ground',

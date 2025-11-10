@@ -3,7 +3,7 @@
  */
 
 import React from 'react'
-import { BeakerIcon, DropletIcon } from '@heroicons/react/24/outline'
+import { BeakerIcon } from '@heroicons/react/24/outline'
 
 export interface CalculationPanelProps {
   sprinklerCount: number
@@ -67,7 +67,7 @@ export const CalculationPanel: React.FC<CalculationPanelProps> = ({
         {/* Water Supply */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="flex items-center mb-3">
-            <DropletIcon className="h-5 w-5 text-blue-600 mr-2" />
+            <BeakerIcon className="h-5 w-5 text-blue-600 mr-2" />
             <h4 className="font-semibold text-gray-900">Water Supply</h4>
           </div>
           <dl className="space-y-2 text-sm">

@@ -31,9 +31,9 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onSelectDocume
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const [showAllCategories, setShowAllCategories] = useState(true)
   const [showUpload, setShowUpload] = useState(false)
-  const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -82,7 +82,7 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onSelectDocume
     }
   }
 
-  const handleFileUpload = async (filePath: string, fileUrl: string, file: File) => {
+  const handleFileUpload = async (_filePath: string, _fileUrl: string, file: File) => {
     if (!user) {
       setError('You must be logged in to upload documents')
       return
@@ -97,13 +97,13 @@ export const DocumentLibrary: React.FC<DocumentLibraryProps> = ({ onSelectDocume
       const categoryId = parsed.code ? getCategoryFromCode(parsed.code) : selectedCategory
 
       // Upload and create document record
-      const newDocument = await uploadAndCreateDocument(
+      await uploadAndCreateDocument(
         file,
         {
           name: parsed.name || file.name,
-          document_code: parsed.code,
-          category_id: categoryId,
-          version: parsed.version,
+          document_code: parsed.code || undefined,
+          category_id: categoryId || undefined,
+          version: parsed.version || undefined,
           description: `Uploaded: ${new Date().toLocaleDateString()}`
         },
         user.id,

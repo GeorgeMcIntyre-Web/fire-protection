@@ -4,13 +4,12 @@
  * Allows clients to view quotes via secure token (no login required)
  */
 
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
   CheckCircleIcon,
   XCircleIcon,
-  DocumentArrowDownIcon,
-  EnvelopeIcon
+  DocumentArrowDownIcon
 } from '@heroicons/react/24/outline'
 import { getQuoteTokenByToken, markTokenAsViewed, isTokenValid } from '../../lib/quote-tokens'
 import { getQuote } from '../../lib/fireconsult'
@@ -27,7 +26,6 @@ export default function QuoteViewPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [responseReason, setResponseReason] = useState('')
 
   useEffect(() => {
     if (token) {

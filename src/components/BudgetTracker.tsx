@@ -115,7 +115,7 @@ export const BudgetTracker: React.FC = () => {
           </div>
           <div>
             <p className="text-sm text-blue-200">Total Actual</p>
-            <p className="text-2xl font-bold">{formatCurrency(totalActual)}</p>
+            <p className="text-2xl font-bold">{formatCurrency(totalSpent)}</p>
           </div>
           <div>
             <p className="text-sm text-blue-200">Variance</p>
@@ -129,7 +129,9 @@ export const BudgetTracker: React.FC = () => {
           <div className="flex items-center justify-between">
             <span className="text-sm">Overall Status</span>
             <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-              overallStatus === 'within_budget' ? 'bg-green-500/20 text-green-200' : 'bg-yellow-500/20 text-yellow-200'
+              overallStatus === 'green' ? 'bg-green-500/20 text-green-200' : 
+              overallStatus === 'yellow' ? 'bg-yellow-500/20 text-yellow-200' : 
+              'bg-red-500/20 text-red-200'
             }`}>
               {overallStatus === 'green' ? '✓ On Track' : overallStatus === 'yellow' ? '⚠️ At Risk' : '✗ Over Budget'}
             </span>

@@ -20,6 +20,7 @@ import CreateJobPage from './pages/FireConsult/CreateJobPage'
 import JobDetailPage from './pages/FireConsult/JobDetailPage'
 import EngineersPage from './pages/FireConsult/EngineersPage'
 import QuotesPage from './pages/FireConsult/QuotesPage'
+import QuoteViewPage from './pages/Public/QuoteViewPage'
 
 function App() {
   return (

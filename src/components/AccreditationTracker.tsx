@@ -79,7 +79,6 @@ function EngineerRow({ engineer }: { engineer: Engineer }) {
 export default function AccreditationTracker() {
   const [alerts, setAlerts] = useState<AccreditationAlert[]>([])
   const [engineers, setEngineers] = useState<Engineer[]>([])
-  const [selectedEngineer, setSelectedEngineer] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {

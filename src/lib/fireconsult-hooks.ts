@@ -6,7 +6,6 @@
 
 import { useState, useEffect } from 'react'
 import type {
-  FireConsultJob,
   JobWithRelations,
   Engineer,
   DesignRequest,

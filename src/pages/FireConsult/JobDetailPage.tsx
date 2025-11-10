@@ -6,14 +6,13 @@
 
 import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import { ArrowLeftIcon, DocumentArrowDownIcon, PencilIcon, CurrencyDollarIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
+import { ArrowLeftIcon, DocumentArrowDownIcon, CurrencyDollarIcon, EnvelopeIcon } from '@heroicons/react/24/outline'
 import { useJob } from '../../lib/fireconsult-hooks'
-import { updateFireConsultJob, createDesignRequest } from '../../lib/fireconsult'
+import { createDesignRequest } from '../../lib/fireconsult'
 import { generateDesignRequestPDF } from '../../lib/design-request-pdf'
 import { useFireConsult } from '../../contexts/FireConsultContext'
 import { 
   generateQuoteFromJob, 
-  formatCurrency, 
   generateQuoteNumber,
   type QuoteResult,
   mapCommodityToHazard
@@ -22,10 +21,10 @@ import { generateQuotePDF } from '../../lib/quote-pdf'
 import { createQuote, updateQuote } from '../../lib/fireconsult'
 import { generateQuoteToken, generateQuoteUrl } from '../../lib/quote-tokens'
 import { sendEmail, quoteEmailTemplate } from '../../lib/email'
+import { FileUpload } from '../../components/FileUpload'
 
 export default function JobDetailPage() {
   const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { job, loading, error } = useJob(id || null)
   const { refreshAll } = useFireConsult()
   const [generatingPDF, setGeneratingPDF] = useState(false)
@@ -64,7 +63,7 @@ export default function JobDetailPage() {
         job_id: job.id,
         engineer_id: job.assigned_engineer_id,
         status: 'pending'
-      })
+      } as any)
       await refreshAll()
       alert('Design request created successfully')
     } catch (err) {
@@ -119,6 +118,11 @@ export default function JobDetailPage() {
         quote_inc_vat: quote.finalQuoteIncVat,
         status: 'draft',
         valid_until: validUntil.toISOString().split('T')[0],
+        pdf_url: null,
+        notes: null,
+        rejection_reason: null,
+        accepted_at: null,
+        rejected_at: null,
         created_by: job.consultant_id
       })
       
@@ -178,6 +182,11 @@ export default function JobDetailPage() {
           quote_inc_vat: quote.finalQuoteIncVat,
           status: 'draft',
           valid_until: validUntil.toISOString().split('T')[0],
+          pdf_url: null,
+          notes: null,
+          rejection_reason: null,
+          accepted_at: null,
+          rejected_at: null,
           created_by: job.consultant_id
         })
       } catch (err) {
@@ -442,6 +451,78 @@ export default function JobDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Design Documents */}
+      <div className="bg-white shadow rounded-lg overflow-hidden">
+        <div className="px-6 py-4 border-b border-gray-200">
+          <h2 className="text-lg font-semibold">Design Documents</h2>
+        </div>
+        <div className="px-6 py-4 space-y-6">
+          {/* Floor Plans */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Floor Plans
+            </label>
+            <FileUpload
+              bucket="fire-consult-documents"
+              path={`jobs/${job.id}/floor-plans`}
+              accept=".pdf,.jpg,.jpeg,.png,.dwg"
+              maxSize={20}
+              multiple={true}
+              label="Upload Floor Plans"
+              onUploadComplete={(filePath, fileUrl, file) => {
+                console.log('Floor plan uploaded:', filePath, fileUrl)
+                // Optionally refresh job data or show success message
+              }}
+              onError={(error) => {
+                console.error('Upload error:', error)
+              }}
+            />
+          </div>
+
+          {/* Site Photos */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Site Photos
+            </label>
+            <FileUpload
+              bucket="fire-consult-documents"
+              path={`jobs/${job.id}/site-photos`}
+              accept=".jpg,.jpeg,.png,.heic"
+              maxSize={10}
+              multiple={true}
+              label="Upload Site Photos"
+              onUploadComplete={(filePath, fileUrl, file) => {
+                console.log('Site photo uploaded:', filePath, fileUrl)
+              }}
+              onError={(error) => {
+                console.error('Upload error:', error)
+              }}
+            />
+          </div>
+
+          {/* Signed Fire Plans */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Signed Fire Plans
+            </label>
+            <FileUpload
+              bucket="fire-consult-documents"
+              path={`jobs/${job.id}/signed-plans`}
+              accept=".pdf"
+              maxSize={50}
+              multiple={true}
+              label="Upload Signed Plans"
+              onUploadComplete={(filePath, fileUrl, file) => {
+                console.log('Signed plan uploaded:', filePath, fileUrl)
+              }}
+              onError={(error) => {
+                console.error('Upload error:', error)
+              }}
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Quote Generator */}
       <div className="bg-white shadow rounded-lg overflow-hidden">

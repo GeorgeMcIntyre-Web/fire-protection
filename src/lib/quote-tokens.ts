@@ -82,22 +82,35 @@ export async function getQuoteTokenByQuoteId(quoteId: string): Promise<QuoteToke
  * Mark token as viewed (increment view count)
  */
 export async function markTokenAsViewed(tokenValue: string): Promise<void> {
-  const { error } = await supabase.rpc('mark_quote_token_viewed', {
-    token_value: tokenValue
-  })
+  try {
+    // Try RPC first (if it exists)
+    const { error: rpcError } = await supabase.rpc('mark_quote_token_viewed', {
+      token_value: tokenValue
+    })
 
-  if (error) {
-    // Fallback if RPC doesn't exist
-    const { error: updateError } = await supabase
-      .from('quote_tokens')
-      .update({
-        viewed_at: new Date().toISOString(),
-        viewed_count: supabase.raw('viewed_count + 1')
-      })
-      .eq('token', tokenValue)
-
-    if (updateError) throw updateError
+    if (!rpcError) return
+  } catch (err) {
+    // RPC doesn't exist, use fallback
   }
+
+  // Fallback: Update directly
+  const { data: existing } = await supabase
+    .from('quote_tokens')
+    .select('viewed_count')
+    .eq('token', tokenValue)
+    .single()
+
+  const newCount = (existing?.viewed_count || 0) + 1
+
+  const { error: updateError } = await supabase
+    .from('quote_tokens')
+    .update({
+      viewed_at: new Date().toISOString(),
+      viewed_count: newCount
+    })
+    .eq('token', tokenValue)
+
+  if (updateError) throw updateError
 }
 
 /**
